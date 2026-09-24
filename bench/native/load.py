@@ -16,6 +16,7 @@ PORT = 18080
 CONNS = 64
 WARMUP, DURATION = 5, 15
 NODE = os.path.expanduser("~/.nvm/versions/node/v26.10.0/bin/node")
+BUN = os.path.expanduser("~/.bun/bin/bun")
 ORDER_BODY = '{"user_id":42,"items":[{"sku":"SKU-17","qty":2},{"sku":"SKU-4242","qty":1}]}'
 
 SCENARIOS = [
@@ -31,7 +32,10 @@ FIXED_RATE = [("get_user", 2000), ("create_order", 1000)]
 # variant -> (command, env for N threads)
 VARIANTS = {
     "ts":          ([NODE, "ts/dist/main.js"],             lambda n: {"WORKERS": str(n), "DB_POOL_SIZE": str(20 // n)}),
+    "ts-bun":      ([BUN, "ts/dist/main.js"],              lambda n: {"WORKERS": str(n), "DB_POOL_SIZE": str(20 // n)}),
+    "py":          (["py/.venv/bin/python", "-m", "app"],  lambda n: {"WORKERS": str(n), "DB_POOL_SIZE": str(20 // n), "PYTHONPATH": "py"}),
     "go":          (["/tmp/lc-go"],                        lambda n: {"GOMAXPROCS": str(n)}),
+    "go-fasthttp": (["/tmp/lc-go-fasthttp"],               lambda n: {"GOMAXPROCS": str(n)}),
     "rust":        (["rust/target/release/orders-api"],    lambda n: {"TOKIO_WORKER_THREADS": str(n)}),
     "rust-sqlx08": (["/tmp/lc-rust-sqlx08"],               lambda n: {"TOKIO_WORKER_THREADS": str(n)}),
 }

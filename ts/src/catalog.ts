@@ -11,29 +11,42 @@ export interface Product {
 
 export class UpstreamError extends Error {}
 
-const pool = new Pool(config.catalogUrl, { connections: 128, pipelining: 1 });
+interface UpstreamResponse {
+  status: number;
+  body: Buffer;
+}
+
+type Get = (path: string) => Promise<UpstreamResponse>;
+
+// undici's Pool is the fastest client on Node but doesn't work on Bun; Bun's native fetch is the idiomatic choice there.
+const get: Get =
+  "Bun" in globalThis
+    ? async (path) => {
+        const res = await fetch(config.catalogUrl + path);
+        return { status: res.status, body: Buffer.from(await res.arrayBuffer()) };
+      }
+    : (() => {
+        const pool = new Pool(config.catalogUrl, { connections: 128, pipelining: 1 });
+        return async (path: string) => {
+          const res = await pool.request({ method: "GET", path });
+          return { status: res.statusCode, body: Buffer.from(await res.body.arrayBuffer()) };
+        };
+      })();
 
 /** Raw pass-through fetch, used by the proxy endpoint. */
-export async function fetchRaw(sku: string): Promise<{ status: number; body: Buffer }> {
-  const res = await pool.request({ method: "GET", path: `/products/${encodeURIComponent(sku)}` });
-  return { status: res.statusCode, body: Buffer.from(await res.body.arrayBuffer()) };
+export function fetchRaw(sku: string): Promise<UpstreamResponse> {
+  return get(`/products/${encodeURIComponent(sku)}`);
 }
 
 /** Returns the product, or null if the catalog says 404. */
 export async function getProduct(sku: string): Promise<Product | null> {
   let res;
   try {
-    res = await pool.request({ method: "GET", path: `/products/${encodeURIComponent(sku)}` });
+    res = await fetchRaw(sku);
   } catch (e) {
     throw new UpstreamError(String(e));
   }
-  if (res.statusCode === 404) {
-    await res.body.dump();
-    return null;
-  }
-  if (res.statusCode !== 200) {
-    await res.body.dump();
-    throw new UpstreamError(`catalog returned ${res.statusCode}`);
-  }
-  return (await res.body.json()) as Product;
+  if (res.status === 404) return null;
+  if (res.status !== 200) throw new UpstreamError(`catalog returned ${res.status}`);
+  return JSON.parse(res.body.toString()) as Product;
 }

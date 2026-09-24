@@ -1,0 +1,21 @@
+
+### py threads=1
+startup 0.286s idle rss 69.0 MB
+  health        {"rps": 26056.8, "p50_ms": 2.11, "p99_ms": 4.8, "success": 1.0, "cpu_cores": 0.984, "peak_rss_mb": 70.3, "rps_per_core": 26480}
+  get_user      {"rps": 8691.6, "p50_ms": 5.91, "p99_ms": 25.41, "success": 1.0, "cpu_cores": 0.98, "peak_rss_mb": 72.0, "rps_per_core": 8869}
+  proxy         {"rps": 7864.6, "p50_ms": 7.22, "p99_ms": 14.23, "success": 1.0, "cpu_cores": 0.984, "peak_rss_mb": 73.0, "rps_per_core": 7992}
+  get_order     {"rps": 5510.5, "p50_ms": 9.69, "p99_ms": 36.37, "success": 1.0, "cpu_cores": 0.979, "peak_rss_mb": 73.2, "rps_per_core": 5629}
+  list_orders   {"rps": 4872.9, "p50_ms": 10.11, "p99_ms": 54.78, "success": 1.0, "cpu_cores": 0.986, "peak_rss_mb": 73.8, "rps_per_core": 4942}
+  create_order  {"rps": 2507.4, "p50_ms": 22.35, "p99_ms": 72.71, "success": 1.0, "cpu_cores": 0.987, "peak_rss_mb": 73.9, "rps_per_core": 2540}
+  get_user@2000   {"rps": 1999.2, "p50_ms": 0.79, "p99_ms": 3.5, "success": 1.0, "cpu_cores": 0.419, "peak_rss_mb": 74.0, "rps_per_core": 4771}
+  create_order@1000   {"rps": 1000.2, "p50_ms": 0.93, "p99_ms": 1.6, "success": 1.0, "cpu_cores": 0.41, "peak_rss_mb": 74.0, "rps_per_core": 2440}
+
+### py threads=4
+startup 0.433s idle rss 327.6 MB
+  health        {"rps": 35757.2, "p50_ms": 1.42, "p99_ms": 7.43, "success": 1.0, "cpu_cores": 2.647, "peak_rss_mb": 329.8, "rps_per_core": 13509}
+  get_user      {"rps": 10899.2, "p50_ms": 3.89, "p99_ms": 30.75, "success": 1.0, "cpu_cores": 2.494, "peak_rss_mb": 332.4, "rps_per_core": 4370}
+  proxy         {"rps": 12396.4, "p50_ms": 4.21, "p99_ms": 21.54, "success": 1.0, "cpu_cores": 2.69, "peak_rss_mb": 334.1, "rps_per_core": 4608}
+  get_order     {"rps": 6725.2, "p50_ms": 7.09, "p99_ms": 43.82, "success": 1.0, "cpu_cores": 2.427, "peak_rss_mb": 334.7, "rps_per_core": 2771}
+  list_orders   {"rps": 5899.7, "p50_ms": 6.96, "p99_ms": 53.07, "success": 1.0, "cpu_cores": 2.455, "peak_rss_mb": 335.5, "rps_per_core": 2403}
+  create_order  {"rps": 3283.1, "p50_ms": 12.39, "p99_ms": 88.96, "success": 1.0, "cpu_cores": 2.446, "peak_rss_mb": 336.5, "rps_per_core": 1342}
+EXIT 0

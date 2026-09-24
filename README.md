@@ -1,17 +1,17 @@
-# lang-compare: one backend written in TypeScript, Go and Rust
+# lang-compare: one backend written in TypeScript, Go, Rust and Python
 
-The same JSON backend (`orders-api`, spec in [SPEC.md](SPEC.md)), implemented three times:
+The same JSON backend (`orders-api`, spec in [SPEC.md](SPEC.md)), implemented several times:
 Postgres, a transparent proxy to an upstream service, and business logic that fans out
 to the upstream concurrently and writes to the database in a transaction.
 
-| | TypeScript | Go | Rust |
-|---|---|---|---|
-| Stack (current) | Node 26.10, TypeScript 7.0, Fastify 5.12, pg 8.23, undici 8 | Go 1.27.1, net/http (stdlib), pgx 5.11 | Rust 1.98.1, axum 0.8, sqlx 0.9, reqwest 0.13, tokio 1.53, mimalloc |
-| Code | [ts/](ts) | [go/](go) | [rust/](rust) |
-| Lines of code (non-blank) | 333 | 463 | 416 |
-| Runtime dependencies | 64 npm packages | 16 modules | ~190 crates in Cargo.lock |
+| | TypeScript | Go | Rust | Python |
+|---|---|---|---|---|
+| Stack (current) | Node 26.10 **or Bun 1.4**, TypeScript 7.0, Fastify 5.12, pg 8.23, undici 8 (on Bun: native `fetch`) | Go 1.27.1, pgx 5.11; net/http (stdlib) **or fasthttp 1.74** + fasthttp/router | Rust 1.98.1, axum 0.8, sqlx 0.9, reqwest 0.13, tokio 1.53, mimalloc | Python 3.14, FastAPI 0.141 + pydantic 2.13, uvicorn 0.53 (uvloop, httptools), asyncpg 0.31, aiohttp 3.14 |
+| Code | [ts/](ts) | [go/](go), [go-fasthttp/](go-fasthttp) | [rust/](rust) | [py/](py) |
+| Lines of code (non-blank) | 333 | 463 / 464 | 416 | **258** |
+| Runtime dependencies | 64 npm packages | 16 modules | ~190 crates in Cargo.lock | ~30 packages |
 
-All three pass the same black-box test suite, [bench/conformance.py](bench/conformance.py) (35 checks).
+All implementations pass the same black-box test suite, [bench/conformance.py](bench/conformance.py) (35 checks).
 
 There are two sets of measurements:
 
@@ -25,12 +25,15 @@ There are two sets of measurements:
 Wall-clock time from the first file to "Docker image built and conformance passing".
 These are my (Claude's) times, not a human's, so read them as relative, not absolute.
 
-| | TS | Go | Rust |
-|---|---|---|---|
-| Time | 2 min 10 s | **1 min 20 s** | 3 min 24 s |
-| Fix iterations | 3 (2 were environment issues: ports 8080/5432 on the host were taken, plus a test bug) | 0, passed on the first run | 1 (host linker unavailable, moved to Docker); the code itself compiled and passed on the first try |
-| Performance tuning afterwards | none | `GOMAXPROCS=1` under a 1-CPU cgroup limit | mimalloc instead of musl malloc; `test_before_acquire(false)` in sqlx |
-| Upgrading to the latest versions | no code changes (including TS 7) | no code changes | sqlx 0.9 rejects SQL built with `format!`, so the queries were rewritten with `concat!` |
+| | TS | Go | Rust | Python |
+|---|---|---|---|---|
+| Time | 2 min 10 s | 1 min 20 s | 3 min 24 s | **1 min 14 s** ³ |
+| Fix iterations | 3 (2 were environment issues: ports 8080/5432 on the host were taken, plus a test bug) | 0, passed on the first run | 1 (host linker unavailable, moved to Docker); the code itself compiled and passed on the first try | 0 on the first run; then switched from the deprecated `ORJSONResponse` to response models |
+| Performance tuning afterwards | none | `GOMAXPROCS=1` under a 1-CPU cgroup limit | mimalloc instead of musl malloc; `test_before_acquire(false)` in sqlx | none |
+| Upgrading to the latest versions | no code changes (including TS 7) | no code changes | sqlx 0.9 rejects SQL built with `format!`, so the queries were rewritten with `concat!` | written right away on the latest versions |
+| Switching the runtime/framework | Bun: the code ran unchanged, but the `undici` client doesn't work on Bun, so the upstream calls go through `fetch` | fasthttp: **the whole HTTP layer was rewritten** (it's incompatible with net/http: a different handler type, context, router and client) | — | — |
+
+³ Python was written last, when the spec, the tests and three reference implementations already existed, so its time is not directly comparable with the others.
 
 Qualitatively: Go and TS have almost no boilerplate. In Rust most of the time goes into types
 (extractor rejections, `sqlx::FromRow`, error enums) and waiting on the compiler.
@@ -52,64 +55,77 @@ TS/Go: median of 3 runs. Rust: 1 run. Every run starts from a cold cache.
   If you build your production image in CI, the Docker numbers are the ones you will actually see.
 - TypeScript 7 (the Go-native compiler) is only about 15% faster on a project this small; most of the 0.3–0.7 s is process startup.
 - `docker build --no-cache` (base images already pulled): TS 3 s, Go 5 s, Rust 116 s.
+- Python has no compile step: `pip install` into a fresh venv takes a few seconds, startup is ~0.3 s.
 
 ## 3. Disk (current versions)
 
-| | TS | Go | Rust |
-|---|---|---|---|
-| Artifact | 28 KB JS + ~18 MB node_modules (+ the node runtime) | 10.8 MB static binary | 4.1 MB static binary (musl + mimalloc) |
-| Docker image (uncompressed) | **190 MB** (node:26-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) |
-| Docker image (gzip, ≈ registry size) | 67 MB | 3.8 MB | 1.8 MB |
+| | TS | Go | Rust | Python |
+|---|---|---|---|---|
+| Artifact | 28 KB JS + ~18 MB node_modules (+ the node runtime; the Bun binary is 62 MB) | 10.8 MB static binary | 4.1 MB static binary (musl + mimalloc) | sources + a venv with dependencies |
+| Docker image (uncompressed) | 190 MB (node:26-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) | **224 MB** (python:3.14-slim) |
+| Docker image (gzip, ≈ registry size) | 67 MB | 3.8 MB | 1.8 MB | 66 MB |
 
 ## 4. Run A — native macOS, latest versions
 
-Without cgroups, parallelism is limited by each runtime's own setting: `WORKERS` (node:cluster), `GOMAXPROCS`, `TOKIO_WORKER_THREADS`.
+Without cgroups, parallelism is limited by each runtime's own setting: `WORKERS` (node/bun `cluster`, `uvicorn --workers`), `GOMAXPROCS`, `TOKIO_WORKER_THREADS`.
 CPU = CPU time of the process tree (`ps`), memory = summed RSS. Each scenario: 5 s warmup + 15 s of measurement at 64 connections;
-Postgres is recreated for each language. Success rate was 100% everywhere.
+Postgres is recreated for each variant. Success rate was 100% everywhere.
 
-### 1 thread / 1 process
+### 1 thread / 1 process (rps; in parentheses, CPU cores actually used where it differs noticeably from 1)
 
-| Scenario | TS | Go | Rust | Rust with the extra ping ¹ |
-|---|---|---|---|---|
-| `GET /health` | 83.6k | 97.0k | **142.7k** | 92.4k |
-| `GET /users/{id}` (1 SELECT) | 35.8k | **42.0k** | 37.8k | 21.4k |
-| `GET /products/{sku}` (proxy) | 31.3k | 36.3k | **50.4k** | 31.3k |
-| `GET /orders/{id}` (2 SELECTs) | 22.6k | **27.8k** | 21.9k | 11.9k |
-| `GET /users/{id}/orders` (2 SELECTs in parallel) | 16.4k | **22.3k** | 18.2k | 10.5k |
-| `POST /orders` (SELECT + 2 upstream calls + transaction) | 8.0k | 9.3k | **9.7k** | 5.6k |
-| p99 for `POST /orders` | 8.9 ms | 9.4 ms | **7.4 ms** | 23.3 ms |
+| Scenario | Python (FastAPI) | TS (Node) | TS (Bun) | Go (net/http) | Go (fasthttp) | Rust |
+|---|---|---|---|---|---|---|
+| `GET /health` | 26.1k | 82.1k | 92.7k | 97.3k | 134.9k | **142.7k** |
+| `GET /users/{id}` (1 SELECT) | 8.7k | 35.7k | 40.5k | 41.8k | **53.5k** | 37.8k |
+| `GET /products/{sku}` (proxy) | 7.9k | 31.0k | 53.2k (1.7 cores) | 36.2k | **60.5k** | 50.4k |
+| `GET /orders/{id}` (2 SELECTs) | 5.5k | 22.5k | 25.8k | 27.8k | **33.2k** | 21.9k |
+| `GET /users/{id}/orders` (2 SELECTs in parallel) | 4.9k | 16.3k | 19.5k | 22.3k | **26.3k** | 18.2k |
+| `POST /orders` (SELECT + 2 upstream calls + transaction) | 2.5k | 7.9k | **11.3k** (1.4 cores) | 9.3k | 10.8k | 9.7k |
+| p99 for `POST /orders` | **72.7 ms** | 9.3 ms | 8.0 ms | 9.4 ms | 8.1 ms | **7.4 ms** |
 
-¹ The old code with `test_before_acquire = true`, sqlx's default, which pings Postgres every time a connection is taken from the pool.
-sqlx 0.8 and 0.9 with this setting give the same result (e.g. `get_order` 11.9k vs 11.8k), so **the library version didn't matter; this setting did**.
-The `health` and `proxy` rows in this column don't touch the database; their gap with the main Rust column is most likely run-to-run noise on macOS (see Caveats).
+Before the fix (sqlx's default `test_before_acquire = true`, an extra ping to Postgres on every connection checkout), Rust was nearly 2× slower on the DB endpoints
+(`get_order` 11.9k, `POST /orders` 5.6k). sqlx 0.8 and 0.9 with this setting give the same result, so **the library version didn't matter; this setting did**.
 
 ### 4 threads / 4 processes
 
-| Scenario | TS | Go | Rust |
-|---|---|---|---|
-| `GET /health` | 110.7k | 119.8k | **137.9k** |
-| `GET /users/{id}` | 48.7k | **55.9k** | 40.1k |
-| `GET /products/{sku}` (proxy) | 47.5k | **60.7k** | 56.6k |
-| `GET /orders/{id}` | 29.3k | **36.2k** | 21.1k |
-| `GET /users/{id}/orders` | 24.6k | **34.0k** | 19.7k |
-| `POST /orders` | 10.1k | **11.2k** | 9.9k |
-| CPU actually used | ~2.6–2.8 cores | ~2.5–3.5 | ~2.3–2.6 |
+| Scenario | Python | TS (Node) | TS (Bun) ⁴ | Go (net/http) | Go (fasthttp) ⁵ | Rust |
+|---|---|---|---|---|---|---|
+| `GET /health` | 35.8k | 107.3k | 94.7k | 118.8k | 104.7k | **137.9k** |
+| `GET /users/{id}` | 10.9k | 46.8k | 39.8k | **52.5k** | 38.6k | 40.1k |
+| `GET /products/{sku}` | 12.4k | 47.6k | 53.1k | 50.5k | 43.6k | **56.6k** |
+| `GET /orders/{id}` | 6.7k | 29.6k | 24.7k | **32.3k** | 22.7k | 21.1k |
+| `GET /users/{id}/orders` | 5.9k | 24.7k | 18.9k | **28.5k** | 19.7k | 19.7k |
+| `POST /orders` | 3.3k | 10.3k | 10.6k | **11.0k** | 7.8k | 9.9k |
 
 With 4 threads nobody reaches 4 cores: on a single laptop the load generator, Postgres and the catalog take the rest of the CPU,
 so the 4-thread native numbers are limited by the machine, not the language. For honest scaling, see run B.
 
+⁴ On macOS, Bun's `cluster` doesn't spread connections across processes (it relies on `SO_REUSEPORT`, which balances only on Linux): 4 processes
+use ~1–1.5 cores and are no faster than a single one. On Linux it should behave differently; not measured here.
+⁵ fasthttp with `GOMAXPROCS=4` used only ~1.6–2 cores and ended up slower than net/http; the cause wasn't investigated, so it's better to rely on the 1-thread numbers.
+
 ### Memory, startup, CPU at the same load
 
-| | TS | Go | Rust |
-|---|---|---|---|
-| Startup to the first `200` | 155 ms | 21 ms | **13 ms** |
-| RSS idle (1 thread) | 95 MB | 12.6 MB | **8.7 MB** |
-| RSS peak under load (1 thread) | 239 MB | 30 MB | **19 MB** |
-| RSS peak under load (4 threads/processes) | **983 MB** ² | 34 MB | **23 MB** |
-| CPU for `GET /users/{id}` @ 2000 rps | 0.31 cores | 0.24 | **0.23** |
-| CPU for `POST /orders` @ 1000 rps | 0.32 cores | 0.33 | **0.28** |
+| | Python | TS (Node) | TS (Bun) | Go (net/http) | Go (fasthttp) | Rust |
+|---|---|---|---|---|---|---|
+| Startup to the first `200` | 290 ms | 157 ms | 133 ms | 20–440 ms ⁶ | 47 ms | **13 ms** |
+| RSS idle (1 thread) | 69 MB | 95 MB | 64 MB | 13 MB | 13 MB | **9 MB** |
+| RSS peak under load (1 thread) | 74 MB | 238 MB | 159 MB | 30 MB | 27 MB | **19 MB** |
+| RSS peak under load (4 threads/processes) ⁷ | 336 MB | **964 MB** | 357 MB | 36 MB | 32 MB | **23 MB** |
+| CPU for `GET /users/{id}` @ 2000 rps | **0.42 cores** | 0.26 | 0.30 | 0.22 | **0.20** | 0.23 |
+| CPU for `POST /orders` @ 1000 rps | **0.41 cores** | 0.26 | 0.37 | 0.33 | 0.29 | 0.28 |
 
-² The sum of RSS across 4 node processes; shared pages are counted several times, so actual usage is somewhat lower.
+⁶ Most of the time it's 20–50 ms; the single 440 ms reading is most likely a macOS hiccup.
+⁷ The sum of RSS across processes; shared pages are counted several times, so actual usage is somewhat lower.
+
+### Is fasthttp or Bun worth it?
+
+- **fasthttp** makes Go **+16–67% faster at 1 thread on the same single core** (proxy +67%, `/health` +39%, DB reads +18–28%,
+  `POST /orders` +16%). The price is rewriting the entire HTTP layer onto an incompatible API, and losing most of the net/http ecosystem
+  (middleware, `httptest`, HTTP/2). Most services won't notice the difference because the database is the bottleneck anyway.
+- **Bun** runs the same code **+13–72% faster** than Node, but part of that comes from extra threads: under load Bun used up to 1.4–1.7 cores
+  where Node used 1. **Per core it's roughly the same as Node** (`POST /orders`: 8.0k vs 7.6k rps/core), yet it uses ~1.5× less memory.
+  On macOS, cluster mode didn't help it at all (see ⁴). Compatibility: pg and Fastify worked unchanged, `undici` didn't.
 
 ## 5. Run B — Docker with CPU limits (previous versions)
 
@@ -135,7 +151,7 @@ The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs t
 1. **Go is the best overall balance**: fastest to write, fast to rebuild (0.2–0.4 s), leads on almost every DB scenario,
    ~30 MB of memory, 11 MB image. The catch: under a 1-CPU cgroup limit, Go 1.25+ still sets `GOMAXPROCS=2`,
    which caused p99 spikes of 50–65 ms and cost 30–40% of throughput; `GOMAXPROCS=1` fixes it.
-2. **Rust is fastest where the code is its own** (`/health`, the proxy: 1.4–2.3× faster than Go/TS), and has the least memory,
+2. **Rust is fastest where the code is its own** (`/health`, the proxy: 1.4–2.3× faster than Go on net/http and Node; roughly on par with Go on fasthttp), and has the least memory,
    the fastest startup and the smallest image. On database endpoints it is **close to Go at 1 thread, but falls behind at 4 threads**:
    sqlx's overhead grows with concurrency. Two defaults cost Rust up to 2× before they were found: musl `malloc` and sqlx's
    `test_before_acquire`. In Rust, what you get depends more on your library choices and their defaults than on the language.
@@ -144,9 +160,14 @@ The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs t
    With TS 7 the build takes a fraction of a second.
 4. **Rust's compile time is its main tax, especially in Docker/CI**: a release build with LTO in a musl container takes 1.5 min even after
    a one-line edit (7.6 s natively on the Mac).
-5. **At realistic loads (well below saturation) the difference in CPU is within 30%**; most of the time is spent in the network and
+5. **Python (FastAPI) is 3–4× slower than Node/Go/Rust** on the same logic, with a p99 of ~70 ms under saturation. But at a moderate load
+   (1000–2000 rps) it only needs ~1.5× more CPU than the others. Its strength is the least code (258 lines) and the fastest development.
+
+6. **At realistic loads (well below saturation) the difference in CPU is within 30%**; most of the time is spent in the network and
    in Postgres/upstream round-trips, not in the language.
-6. **The version upgrade barely changed the picture**; the biggest effects came from runtime and library settings
+7. **Alternative runtimes/frameworks give +15–70%** (fasthttp for Go, Bun for TS), which is less than the gap between languages
+   and less than the effect of the right settings; the price is incompatibility (fasthttp) or extra threads/compatibility risks (Bun).
+8. **The version upgrade barely changed the picture**; the biggest effects came from runtime and library settings
    (allocator, GOMAXPROCS, the pool ping), none of which show up in functional tests, only under load.
 
 ## Caveats
@@ -156,7 +177,7 @@ The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs t
 - macOS can't pin threads to cores, and it moves them between P and E cores, so the native run is noisier than Docker (differences
   up to ~10–15% between runs are possible). Docker gives hard CPU limits but adds VM and virtual-network overhead.
 - Postgres was tuned for benchmarking (`fsync=off`, `synchronous_commit=off`), so the database is not the bottleneck.
-- Frameworks were picked as "typical" ones (Fastify, stdlib, axum + sqlx) and not tuned to the limit.
+- Frameworks were picked as "typical" ones (Fastify, stdlib, axum + sqlx, FastAPI) and not tuned to the limit.
 
 ## Reproducing
 
@@ -165,8 +186,9 @@ Native (macOS, needs `brew install postgresql@17 oha go`, rustup, and Node 26 vi
 ```sh
 bench/native/infra.sh up                       # Postgres in /tmp/lc-pg on :15432 + catalog on :9000
 (cd ts && npm ci && npx tsc -p .); (cd go && go build -o /tmp/lc-go .); (cd rust && cargo build --release)
+(cd go-fasthttp && go build -o /tmp/lc-go-fasthttp .); (cd py && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt)
 bench/native/compile.sh                        # -> results/native/compile.txt
-python3 bench/native/load.py ts go rust        # -> results/native/load.json (~25 min)
+python3 bench/native/load.py ts ts-bun go go-fasthttp rust py   # -> results/native/load.json (~40 min)
 bench/native/infra.sh down
 ```
 

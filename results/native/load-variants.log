@@ -1,0 +1,81 @@
+
+### ts threads=1
+startup 0.157s idle rss 95.0 MB
+  health        {"rps": 82091.2, "p50_ms": 0.74, "p99_ms": 1.53, "success": 1.0, "cpu_cores": 0.988, "peak_rss_mb": 129.6, "rps_per_core": 83088}
+  get_user      {"rps": 35661.2, "p50_ms": 1.76, "p99_ms": 2.26, "success": 1.0, "cpu_cores": 0.994, "peak_rss_mb": 159.6, "rps_per_core": 35876}
+  proxy         {"rps": 30971.5, "p50_ms": 2.01, "p99_ms": 2.9, "success": 1.0, "cpu_cores": 1.034, "peak_rss_mb": 237.7, "rps_per_core": 29953}
+  get_order     {"rps": 22493.7, "p50_ms": 2.8, "p99_ms": 3.5, "success": 1.0, "cpu_cores": 0.994, "peak_rss_mb": 238.4, "rps_per_core": 22629}
+  list_orders   {"rps": 16249.7, "p50_ms": 3.85, "p99_ms": 4.73, "success": 1.0, "cpu_cores": 0.999, "peak_rss_mb": 191.9, "rps_per_core": 16266}
+  create_order  {"rps": 7863.0, "p50_ms": 8.11, "p99_ms": 9.27, "success": 1.0, "cpu_cores": 1.029, "peak_rss_mb": 236.8, "rps_per_core": 7641}
+  get_user@2000   {"rps": 1999.7, "p50_ms": 0.36, "p99_ms": 7.74, "success": 1.0, "cpu_cores": 0.262, "peak_rss_mb": 215.1, "rps_per_core": 7632}
+  create_order@1000   {"rps": 1000.0, "p50_ms": 0.68, "p99_ms": 2.25, "success": 1.0, "cpu_cores": 0.264, "peak_rss_mb": 207.4, "rps_per_core": 3788}
+
+### ts threads=4
+startup 0.17s idle rss 433.9 MB
+  health        {"rps": 107335.2, "p50_ms": 0.45, "p99_ms": 2.34, "success": 1.0, "cpu_cores": 2.451, "peak_rss_mb": 520.1, "rps_per_core": 43792}
+  get_user      {"rps": 46795.8, "p50_ms": 1.05, "p99_ms": 5.77, "success": 1.0, "cpu_cores": 2.5, "peak_rss_mb": 690.0, "rps_per_core": 18718}
+  proxy         {"rps": 47619.9, "p50_ms": 0.88, "p99_ms": 6.54, "success": 1.0, "cpu_cores": 2.768, "peak_rss_mb": 964.2, "rps_per_core": 17204}
+  get_order     {"rps": 29603.4, "p50_ms": 1.68, "p99_ms": 7.26, "success": 1.0, "cpu_cores": 2.669, "peak_rss_mb": 955.6, "rps_per_core": 11092}
+  list_orders   {"rps": 24735.2, "p50_ms": 1.72, "p99_ms": 10.41, "success": 1.0, "cpu_cores": 2.81, "peak_rss_mb": 848.6, "rps_per_core": 8803}
+  create_order  {"rps": 10262.6, "p50_ms": 4.43, "p99_ms": 26.56, "success": 1.0, "cpu_cores": 2.765, "peak_rss_mb": 945.7, "rps_per_core": 3712}
+
+### ts-bun threads=1
+startup 0.133s idle rss 64.0 MB
+  health        {"rps": 92654.5, "p50_ms": 0.65, "p99_ms": 1.37, "success": 1.0, "cpu_cores": 1.009, "peak_rss_mb": 114.7, "rps_per_core": 91828}
+  get_user      {"rps": 40547.1, "p50_ms": 1.52, "p99_ms": 2.63, "success": 1.0, "cpu_cores": 1.035, "peak_rss_mb": 145.5, "rps_per_core": 39176}
+  proxy         {"rps": 53172.0, "p50_ms": 0.98, "p99_ms": 3.72, "success": 1.0, "cpu_cores": 1.713, "peak_rss_mb": 147.7, "rps_per_core": 31040}
+  get_order     {"rps": 25781.1, "p50_ms": 2.37, "p99_ms": 3.89, "success": 1.0, "cpu_cores": 1.046, "peak_rss_mb": 151.5, "rps_per_core": 24647}
+  list_orders   {"rps": 19498.9, "p50_ms": 3.11, "p99_ms": 4.86, "success": 1.0, "cpu_cores": 1.069, "peak_rss_mb": 156.4, "rps_per_core": 18240}
+  create_order  {"rps": 11288.9, "p50_ms": 5.53, "p99_ms": 8.04, "success": 1.0, "cpu_cores": 1.416, "peak_rss_mb": 158.8, "rps_per_core": 7972}
+  get_user@2000   {"rps": 1999.9, "p50_ms": 0.4, "p99_ms": 5.76, "success": 1.0, "cpu_cores": 0.302, "peak_rss_mb": 158.8, "rps_per_core": 6622}
+  create_order@1000   {"rps": 999.8, "p50_ms": 0.81, "p99_ms": 2.26, "success": 1.0, "cpu_cores": 0.365, "peak_rss_mb": 158.9, "rps_per_core": 2739}
+
+### ts-bun threads=4
+startup 0.125s idle rss 262.8 MB
+  health        {"rps": 94724.5, "p50_ms": 0.63, "p99_ms": 1.35, "success": 1.0, "cpu_cores": 1.013, "peak_rss_mb": 324.6, "rps_per_core": 93509}
+  get_user      {"rps": 39788.0, "p50_ms": 1.53, "p99_ms": 2.71, "success": 1.0, "cpu_cores": 1.061, "peak_rss_mb": 347.3, "rps_per_core": 37500}
+  proxy         {"rps": 53092.4, "p50_ms": 0.99, "p99_ms": 3.96, "success": 1.0, "cpu_cores": 1.701, "peak_rss_mb": 348.7, "rps_per_core": 31212}
+  get_order     {"rps": 24699.4, "p50_ms": 2.48, "p99_ms": 3.97, "success": 1.0, "cpu_cores": 1.085, "peak_rss_mb": 350.7, "rps_per_core": 22764}
+  list_orders   {"rps": 18867.5, "p50_ms": 3.24, "p99_ms": 4.94, "success": 1.0, "cpu_cores": 1.098, "peak_rss_mb": 352.0, "rps_per_core": 17184}
+  create_order  {"rps": 10613.8, "p50_ms": 5.89, "p99_ms": 8.44, "success": 1.0, "cpu_cores": 1.529, "peak_rss_mb": 356.9, "rps_per_core": 6942}
+
+### go threads=1
+startup 0.439s idle rss 12.6 MB
+  health        {"rps": 97317.0, "p50_ms": 0.65, "p99_ms": 1.2, "success": 1.0, "cpu_cores": 0.979, "peak_rss_mb": 18.7, "rps_per_core": 99404}
+  get_user      {"rps": 41775.7, "p50_ms": 1.5, "p99_ms": 2.85, "success": 1.0, "cpu_cores": 0.984, "peak_rss_mb": 24.4, "rps_per_core": 42455}
+  proxy         {"rps": 36164.3, "p50_ms": 1.65, "p99_ms": 3.17, "success": 1.0, "cpu_cores": 0.985, "peak_rss_mb": 25.9, "rps_per_core": 36715}
+  get_order     {"rps": 27820.5, "p50_ms": 2.2, "p99_ms": 4.22, "success": 1.0, "cpu_cores": 0.985, "peak_rss_mb": 28.1, "rps_per_core": 28244}
+  list_orders   {"rps": 22344.6, "p50_ms": 2.63, "p99_ms": 4.97, "success": 1.0, "cpu_cores": 0.986, "peak_rss_mb": 28.6, "rps_per_core": 22662}
+  create_order  {"rps": 9304.8, "p50_ms": 6.62, "p99_ms": 9.41, "success": 1.0, "cpu_cores": 0.987, "peak_rss_mb": 30.2, "rps_per_core": 9427}
+  get_user@2000   {"rps": 1999.8, "p50_ms": 0.3, "p99_ms": 4.17, "success": 1.0, "cpu_cores": 0.222, "peak_rss_mb": 30.3, "rps_per_core": 9008}
+  create_order@1000   {"rps": 1000.0, "p50_ms": 0.76, "p99_ms": 8.04, "success": 1.0, "cpu_cores": 0.326, "peak_rss_mb": 30.3, "rps_per_core": 3067}
+
+### go threads=4
+startup 0.034s idle rss 13.1 MB
+  health        {"rps": 118814.0, "p50_ms": 0.47, "p99_ms": 1.5, "success": 1.0, "cpu_cores": 2.701, "peak_rss_mb": 21.8, "rps_per_core": 43989}
+  get_user      {"rps": 52509.7, "p50_ms": 1.06, "p99_ms": 3.14, "success": 1.0, "cpu_cores": 2.548, "peak_rss_mb": 28.4, "rps_per_core": 20608}
+  proxy         {"rps": 50524.4, "p50_ms": 0.93, "p99_ms": 5.26, "success": 1.0, "cpu_cores": 2.723, "peak_rss_mb": 30.8, "rps_per_core": 18555}
+  get_order     {"rps": 32269.7, "p50_ms": 1.71, "p99_ms": 5.09, "success": 1.0, "cpu_cores": 2.538, "peak_rss_mb": 31.9, "rps_per_core": 12715}
+  list_orders   {"rps": 28526.2, "p50_ms": 1.81, "p99_ms": 6.28, "success": 1.0, "cpu_cores": 2.586, "peak_rss_mb": 36.1, "rps_per_core": 11031}
+  create_order  {"rps": 11042.4, "p50_ms": 4.55, "p99_ms": 16.41, "success": 1.0, "cpu_cores": 2.453, "peak_rss_mb": 36.4, "rps_per_core": 4502}
+
+### go-fasthttp threads=1
+startup 0.047s idle rss 12.7 MB
+  health        {"rps": 134921.1, "p50_ms": 0.47, "p99_ms": 0.78, "success": 1.0, "cpu_cores": 0.978, "peak_rss_mb": 18.4, "rps_per_core": 137956}
+  get_user      {"rps": 53506.2, "p50_ms": 1.25, "p99_ms": 2.19, "success": 1.0, "cpu_cores": 0.986, "peak_rss_mb": 23.8, "rps_per_core": 54266}
+  proxy         {"rps": 60462.6, "p50_ms": 1.06, "p99_ms": 1.37, "success": 1.0, "cpu_cores": 0.984, "peak_rss_mb": 25.4, "rps_per_core": 61446}
+  get_order     {"rps": 33204.4, "p50_ms": 1.86, "p99_ms": 3.38, "success": 1.0, "cpu_cores": 0.985, "peak_rss_mb": 25.6, "rps_per_core": 33710}
+  list_orders   {"rps": 26334.8, "p50_ms": 2.32, "p99_ms": 4.18, "success": 1.0, "cpu_cores": 0.986, "peak_rss_mb": 25.7, "rps_per_core": 26709}
+  create_order  {"rps": 10815.0, "p50_ms": 5.84, "p99_ms": 8.12, "success": 1.0, "cpu_cores": 0.986, "peak_rss_mb": 27.3, "rps_per_core": 10969}
+  get_user@2000   {"rps": 1999.8, "p50_ms": 0.28, "p99_ms": 3.05, "success": 1.0, "cpu_cores": 0.198, "peak_rss_mb": 27.3, "rps_per_core": 10100}
+  create_order@1000   {"rps": 999.9, "p50_ms": 0.71, "p99_ms": 7.72, "success": 1.0, "cpu_cores": 0.286, "peak_rss_mb": 27.4, "rps_per_core": 3496}
+
+### go-fasthttp threads=4
+startup 0.039s idle rss 13.0 MB
+  health        {"rps": 104742.5, "p50_ms": 0.54, "p99_ms": 1.84, "success": 1.0, "cpu_cores": 2.021, "peak_rss_mb": 20.7, "rps_per_core": 51827}
+  get_user      {"rps": 38620.2, "p50_ms": 1.35, "p99_ms": 4.88, "success": 1.0, "cpu_cores": 1.74, "peak_rss_mb": 27.2, "rps_per_core": 22196}
+  proxy         {"rps": 43637.5, "p50_ms": 1.1, "p99_ms": 6.23, "success": 1.0, "cpu_cores": 1.572, "peak_rss_mb": 29.9, "rps_per_core": 27759}
+  get_order     {"rps": 22684.3, "p50_ms": 2.7, "p99_ms": 6.89, "success": 1.0, "cpu_cores": 1.754, "peak_rss_mb": 30.1, "rps_per_core": 12933}
+  list_orders   {"rps": 19732.1, "p50_ms": 3.16, "p99_ms": 8.63, "success": 1.0, "cpu_cores": 1.777, "peak_rss_mb": 30.4, "rps_per_core": 11104}
+  create_order  {"rps": 7845.1, "p50_ms": 8.34, "p99_ms": 20.91, "success": 1.0, "cpu_cores": 1.575, "peak_rss_mb": 31.6, "rps_per_core": 4981}
+EXIT 0
