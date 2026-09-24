@@ -31,7 +31,12 @@ pub struct Order {
     pub items: Option<Vec<OrderItem>>,
 }
 
-const ORDER_COLS: &str = "id, user_id, status, total_cents, currency, created_at";
+// a macro rather than a const: sqlx 0.9 only accepts literal SQL, and concat! needs literals
+macro_rules! order_cols {
+    () => {
+        "id, user_id, status, total_cents, currency, created_at"
+    };
+}
 
 pub enum CreateUserError {
     Duplicate,
@@ -83,8 +88,9 @@ impl Store {
         items: Vec<OrderItem>,
     ) -> sqlx::Result<Order> {
         let mut tx = self.db.begin().await?;
-        let mut order: Order = sqlx::query_as(&format!(
-            "INSERT INTO orders (user_id, total_cents, currency) VALUES ($1, $2, $3) RETURNING {ORDER_COLS}"
+        let mut order: Order = sqlx::query_as(concat!(
+            "INSERT INTO orders (user_id, total_cents, currency) VALUES ($1, $2, $3) RETURNING ",
+            order_cols!()
         ))
         .bind(user_id)
         .bind(total)
@@ -114,7 +120,7 @@ impl Store {
     }
 
     pub async fn get_order(&self, id: i64) -> sqlx::Result<Option<Order>> {
-        let order: Option<Order> = sqlx::query_as(&format!("SELECT {ORDER_COLS} FROM orders WHERE id = $1"))
+        let order: Option<Order> = sqlx::query_as(concat!("SELECT ", order_cols!(), " FROM orders WHERE id = $1"))
             .bind(id)
             .fetch_optional(&self.db)
             .await?;
@@ -130,8 +136,10 @@ impl Store {
     }
 
     pub async fn list_orders(&self, user_id: i64, limit: i64, offset: i64) -> sqlx::Result<Vec<Order>> {
-        sqlx::query_as(&format!(
-            "SELECT {ORDER_COLS} FROM orders WHERE user_id = $1 ORDER BY id DESC LIMIT $2 OFFSET $3"
+        sqlx::query_as(concat!(
+            "SELECT ",
+            order_cols!(),
+            " FROM orders WHERE user_id = $1 ORDER BY id DESC LIMIT $2 OFFSET $3"
         ))
         .bind(user_id)
         .bind(limit)

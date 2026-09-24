@@ -26,6 +26,9 @@ async fn main() {
     let pool_size: u32 = env_or("DB_POOL_SIZE", "20").parse().expect("DB_POOL_SIZE");
     let pool = PgPoolOptions::new()
         .max_connections(pool_size)
+        // sqlx pings every connection on checkout by default (an extra round trip per query);
+        // pgx and node-postgres don't, so turn it off for a like-for-like comparison.
+        .test_before_acquire(false)
         .connect(&env_or("DATABASE_URL", "postgres://app:app@localhost:15432/app"))
         .await
         .expect("connect to postgres");

@@ -6,16 +6,19 @@ to the upstream concurrently and writes to the database in a transaction.
 
 | | TypeScript | Go | Rust |
 |---|---|---|---|
-| Stack | Node 24, Fastify 5, pg, undici | Go 1.27, net/http (stdlib), pgx v5 | Rust 1.98, axum 0.8, sqlx 0.8, reqwest, tokio |
+| Stack (current) | Node 26.10, TypeScript 7.0, Fastify 5.12, pg 8.23, undici 8 | Go 1.27.1, net/http (stdlib), pgx 5.11 | Rust 1.98.1, axum 0.8, sqlx 0.9, reqwest 0.13, tokio 1.53, mimalloc |
 | Code | [ts/](ts) | [go/](go) | [rust/](rust) |
-| Lines of code (non-blank) | 333 | 463 | 405 |
-| Runtime dependencies | 64 npm packages | 16 modules | ~200 crates in Cargo.lock |
+| Lines of code (non-blank) | 333 | 463 | 416 |
+| Runtime dependencies | 64 npm packages | 16 modules | ~190 crates in Cargo.lock |
 
 All three pass the same black-box test suite, [bench/conformance.py](bench/conformance.py) (35 checks).
 
-Machine: MacBook Pro M3 Max, Docker Desktop (Linux VM, 14 vCPU / 4 GB). Everything ran in Docker:
-Postgres (4 CPU), the catalog mock in Go (3 CPU), the app (1 or 4 CPU via `--cpus`), and the load generator
-[oha](https://github.com/hatoo/oha) on the same Docker network, with 64 connections.
+There are two sets of measurements:
+
+- **A. Native macOS, latest versions** (the main one): everything runs directly on the MacBook Pro M3 Max
+  (10P+4E cores, 36 GB): Postgres 17, the catalog mock, the app, and the load generator [oha](https://github.com/hatoo/oha).
+- **B. Docker, previous versions** (Node 24, TS 5.9, sqlx 0.8 with default settings): Docker Desktop, a Linux VM,
+  with hard CPU limits via cgroups. It is kept because it shows the effect of container CPU limits.
 
 ## 1. Time to write
 
@@ -26,114 +29,151 @@ These are my (Claude's) times, not a human's, so read them as relative, not abso
 |---|---|---|---|
 | Time | 2 min 10 s | **1 min 20 s** | 3 min 24 s |
 | Fix iterations | 3 (2 were environment issues: ports 8080/5432 on the host were taken, plus a test bug) | 0, passed on the first run | 1 (host linker unavailable, moved to Docker); the code itself compiled and passed on the first try |
-| Performance tuning afterwards | none | `GOMAXPROCS=1` (env var) | mimalloc instead of the musl allocator (3 lines); **without it Rust scaled worse than TS**, see below |
+| Performance tuning afterwards | none | `GOMAXPROCS=1` under a 1-CPU cgroup limit | mimalloc instead of musl malloc; `test_before_acquire(false)` in sqlx |
+| Upgrading to the latest versions | no code changes (including TS 7) | no code changes | sqlx 0.9 rejects SQL built with `format!`, so the queries were rewritten with `concat!` |
 
 Qualitatively: Go and TS have almost no boilerplate. In Rust most of the time goes into types
 (extractor rejections, `sqlx::FromRow`, error enums) and waiting on the compiler.
 
-## 2. Compilation (in Docker, Linux arm64, 14 CPU; TS/Go median of 3 runs)
+## 2. Compilation
 
-| | TS (`tsc`) | Go | Rust debug | Rust release (thin LTO) | Rust release (no LTO) |
+TS/Go: median of 3 runs. Rust: 1 run. Every run starts from a cold cache.
+
+| | TS 7 (`tsc`, native) | Go | Rust debug | Rust release, thin LTO | Rust release, no LTO |
 |---|---|---|---|---|---|
-| Install dependencies | 0.8 s (`npm ci`) | 0.8 s | 1.6 s (`cargo fetch`) | — | — |
-| Clean build | 0.95 s | 3.4 s | 16.5 s | **104.7 s** | 62.4 s |
-| Rebuild after editing one file | 0.9 s | **0.23 s** | 1.2 s | **84.3 s** | 26.6 s |
-| Type check only | 0.9 s (`tsc --noEmit`) | 3.4 s (`go vet`) | 13.3 s clean / 0.15 s incremental (`cargo check`) | | |
+| **macOS natively** — clean build | 0.68 s (TS 5.9: 0.79 s) | 4.7 s | 11.6 s | 24.4 s | 25.7 s |
+| **macOS natively** — rebuild after editing one file | 0.31 s | 0.38 s | 0.48 s | 7.6 s | 3.6 s |
+| **Docker/Linux** (previous versions) — clean build | 0.95 s | 3.4 s | 16.5 s | **104.7 s** | 62.4 s |
+| **Docker/Linux** (previous versions) — rebuild after editing one file | 0.9 s | **0.23 s** | 1.2 s | **84.3 s** | 26.6 s |
+| Type check only (macOS) | 0.30 s | 6.3 s (`go vet`) | 14.6 s clean / 0.19 s incremental (`cargo check`) | | |
+| Install dependencies (macOS) | 0.5 s (`npm ci`) | 0.7 s | 0.35 s (`cargo fetch`) | | |
 
-Full Docker image build (`docker build --no-cache`, base images already pulled): TS 3 s, Go 5 s, Rust 116 s.
+- Rust release builds with LTO in Docker/musl are 4–10× slower than on macOS (the Mac linker is much faster).
+  If you build your production image in CI, the Docker numbers are the ones you will actually see.
+- TypeScript 7 (the Go-native compiler) is only about 15% faster on a project this small; most of the 0.3–0.7 s is process startup.
+- `docker build --no-cache` (base images already pulled): TS 3 s, Go 5 s, Rust 116 s.
 
-## 3. Disk
-
-| | TS | Go | Rust |
-|---|---|---|---|
-| Artifact | 28 KB JS + 17.6 MB node_modules (+ the node runtime) | 10.8 MB static binary | 4.1 MB static binary (musl) |
-| Docker image (uncompressed) | **176 MB** (node:24-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) |
-| Docker image (gzip, ≈ registry size) | 62 MB | 3.8 MB | 1.8 MB |
-
-## 4. Memory (container cgroup, `docker stats` method)
+## 3. Disk (current versions)
 
 | | TS | Go | Rust |
 |---|---|---|---|
-| Idle, 1 CPU | 104 MB | 3–5 MB | 6.7 MB (0.7 MB with musl malloc) |
-| Peak under load, 1 CPU | 145 MB | 25 MB | 18 MB |
-| Idle, 4 CPU (TS = 4 cluster workers) | 171 MB | 5 MB | 6.8 MB |
-| Peak under load, 4 CPU | **321 MB** | 33 MB | 30 MB |
+| Artifact | 28 KB JS + ~18 MB node_modules (+ the node runtime) | 10.8 MB static binary | 4.1 MB static binary (musl + mimalloc) |
+| Docker image (uncompressed) | **190 MB** (node:26-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) |
+| Docker image (gzip, ≈ registry size) | 67 MB | 3.8 MB | 1.8 MB |
 
-## 5. Throughput (rps) and latency
+## 4. Run A — native macOS, latest versions
 
-Each scenario: 5 s warmup, then 15 s of measurement at 64 connections. The app saturates its CPU in every test (0.95–0.97 cores out of 1, ~3.5–3.8 out of 4).
-Success rate was 100% everywhere.
+Without cgroups, parallelism is limited by each runtime's own setting: `WORKERS` (node:cluster), `GOMAXPROCS`, `TOKIO_WORKER_THREADS`.
+CPU = CPU time of the process tree (`ps`), memory = summed RSS. Each scenario: 5 s warmup + 15 s of measurement at 64 connections;
+Postgres is recreated for each language. Success rate was 100% everywhere.
 
-### 1 CPU
+### 1 thread / 1 process
 
-| Scenario | TS | Go (default) | Go `GOMAXPROCS=1` | Rust |
+| Scenario | TS | Go | Rust | Rust with the extra ping ¹ |
 |---|---|---|---|---|
-| `GET /health` | 65.8k | 64.5k | 95.8k | **148.8k** |
-| `GET /users/{id}` (1 SELECT) | 26.5k | 25.7k | **36.2k** | 25.4k |
-| `GET /products/{sku}` (proxy) | 29.0k | 25.9k | 35.9k | **49.6k** |
-| `GET /orders/{id}` (2 SELECTs) | 16.7k | 16.4k | **22.8k** | 14.1k |
-| `GET /users/{id}/orders` (2 SELECTs in parallel) | 13.0k | 14.4k | **18.9k** | 12.4k |
-| `POST /orders` (SELECT + 2 upstream calls + transaction) | 6.2k | 6.0k | **7.6k** | 7.0k |
-| p99 for `POST /orders` | 17 ms | **65 ms** ⚠️ | 11 ms | 11 ms |
+| `GET /health` | 83.6k | 97.0k | **142.7k** | 92.4k |
+| `GET /users/{id}` (1 SELECT) | 35.8k | **42.0k** | 37.8k | 21.4k |
+| `GET /products/{sku}` (proxy) | 31.3k | 36.3k | **50.4k** | 31.3k |
+| `GET /orders/{id}` (2 SELECTs) | 22.6k | **27.8k** | 21.9k | 11.9k |
+| `GET /users/{id}/orders` (2 SELECTs in parallel) | 16.4k | **22.3k** | 18.2k | 10.5k |
+| `POST /orders` (SELECT + 2 upstream calls + transaction) | 8.0k | 9.3k | **9.7k** | 5.6k |
+| p99 for `POST /orders` | 8.9 ms | 9.4 ms | **7.4 ms** | 23.3 ms |
 
-### 4 CPU (TS as `node:cluster` with 4 workers)
+¹ The old code with `test_before_acquire = true`, sqlx's default, which pings Postgres every time a connection is taken from the pool.
+sqlx 0.8 and 0.9 with this setting give the same result (e.g. `get_order` 11.9k vs 11.8k), so **the library version didn't matter; this setting did**.
+The `health` and `proxy` rows in this column don't touch the database; their gap with the main Rust column is most likely run-to-run noise on macOS (see Caveats).
+
+### 4 threads / 4 processes
 
 | Scenario | TS | Go | Rust |
 |---|---|---|---|
-| `GET /health` | 182k | 196k | **270k** |
-| `GET /users/{id}` | 67.1k | **80.4k** | 44.3k |
-| `GET /products/{sku}` (proxy) | 81.4k | 81.7k | **102.6k** |
-| `GET /orders/{id}` | 44.2k | **56.8k** | 24.7k |
-| `GET /users/{id}/orders` | 36.5k | **47.1k** | 23.5k |
-| `POST /orders` | 17.6k | **20.8k** | 15.7k |
-| p99 for `POST /orders` | 5.6 ms | 5.9 ms | 5.1 ms |
+| `GET /health` | 110.7k | 119.8k | **137.9k** |
+| `GET /users/{id}` | 48.7k | **55.9k** | 40.1k |
+| `GET /products/{sku}` (proxy) | 47.5k | **60.7k** | 56.6k |
+| `GET /orders/{id}` | 29.3k | **36.2k** | 21.1k |
+| `GET /users/{id}/orders` | 24.6k | **34.0k** | 19.7k |
+| `POST /orders` | 10.1k | **11.2k** | 9.9k |
+| CPU actually used | ~2.6–2.8 cores | ~2.5–3.5 | ~2.3–2.6 |
 
-## 6. CPU at the same load (1 CPU limit, fixed rate)
+With 4 threads nobody reaches 4 cores: on a single laptop the load generator, Postgres and the catalog take the rest of the CPU,
+so the 4-thread native numbers are limited by the machine, not the language. For honest scaling, see run B.
 
-| Scenario | TS | Go (default) | Go `GOMAXPROCS=1` | Rust |
-|---|---|---|---|---|
-| `GET /users/{id}` @ 2000 rps | 0.33 cores | 0.33 | **0.25** | 0.29 |
-| `POST /orders` @ 1000 rps | 0.31 cores | 0.33 | 0.25 | **0.25** |
+### Memory, startup, CPU at the same load
 
-At realistic loads (well below saturation) all three differ by at most about 30% in CPU. Most of the time goes to
-the network stack and to Postgres/upstream round-trips, not to the language.
+| | TS | Go | Rust |
+|---|---|---|---|
+| Startup to the first `200` | 155 ms | 21 ms | **13 ms** |
+| RSS idle (1 thread) | 95 MB | 12.6 MB | **8.7 MB** |
+| RSS peak under load (1 thread) | 239 MB | 30 MB | **19 MB** |
+| RSS peak under load (4 threads/processes) | **983 MB** ² | 34 MB | **23 MB** |
+| CPU for `GET /users/{id}` @ 2000 rps | 0.31 cores | 0.24 | **0.23** |
+| CPU for `POST /orders` @ 1000 rps | 0.32 cores | 0.33 | **0.28** |
 
-## 7. Other
+² The sum of RSS across 4 node processes; shared pages are counted several times, so actual usage is somewhat lower.
 
-- Startup to the first `200` on `/health`: about 0.3 s for all three (in this setup, most of that is Docker itself).
+## 5. Run B — Docker with CPU limits (previous versions)
+
+Linux VM with 14 vCPU; Postgres 4 CPU, catalog 3 CPU, the app 1 or 4 CPU via `--cpus`. Memory comes from cgroups (as in `docker stats`).
+Rust here is still on sqlx 0.8 with the extra ping, but already with mimalloc.
+
+| Scenario | TS 1 CPU | Go 1 CPU (default) | Go 1 CPU `GOMAXPROCS=1` | Rust 1 CPU | TS 4 CPU (cluster) | Go 4 CPU | Rust 4 CPU |
+|---|---|---|---|---|---|---|---|
+| `GET /health` | 65.8k | 64.5k | 95.8k | **148.8k** | 182k | 196k | **270k** |
+| `GET /users/{id}` | 26.5k | 25.7k | **36.2k** | 25.4k | 67.1k | **80.4k** | 44.3k |
+| `GET /products/{sku}` | 29.0k | 25.9k | 35.9k | **49.6k** | 81.4k | 81.7k | **102.6k** |
+| `GET /orders/{id}` | 16.7k | 16.4k | **22.8k** | 14.1k | 44.2k | **56.8k** | 24.7k |
+| `GET /users/{id}/orders` | 13.0k | 14.4k | **18.9k** | 12.4k | 36.5k | **47.1k** | 23.5k |
+| `POST /orders` | 6.2k | 6.0k | **7.6k** | 7.0k | 17.6k | **20.8k** | 15.7k |
+| p99 `POST /orders` | 17 ms | **65 ms** ⚠️ | 11 ms | 11 ms | 5.6 ms | 5.9 ms | 5.1 ms |
+| Memory idle / peak | 104 / 145 MB | 3 / 25 MB | 5 / 26 MB | 7 / 18 MB | 171 / 321 MB | 5 / 33 MB | 7 / 30 MB |
+
+The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs than at 1** (`/health` 142k → 95k):
+`results/load-rust-muslmalloc.json`.
 
 ## Conclusions
 
-1. **Rust wins where the code is its own**: `/health` and the proxy (hyper + reqwest) are 1.5–2.3× faster than Go/TS,
-   and it has the smallest image (4 MB) and memory footprint.
-   **But on database paths Rust with sqlx is the slowest of the three**, especially at 4 CPUs (2× behind Go).
-   That comes from sqlx (its pool and protocol layer), not from the language; tokio-postgres + deadpool would most likely
-   close the gap. The practical lesson is that in Rust your choice of libraries matters more than the language does.
-2. **Go is the best overall balance**: fastest to write, fastest to rebuild (0.2 s), best on every DB scenario,
-   ~30 MB of memory, 11 MB image. The one catch: on a 1-CPU quota, Go 1.25+ still sets `GOMAXPROCS` to 2, which caused
-   p99 spikes of 50–65 ms from CFS throttling and cost 30–40% of throughput. `GOMAXPROCS=1` fixes it.
-3. **TS/Node is surprisingly close on throughput**: at 1 CPU it matches default Go, and in cluster mode it is 15–25% behind Go.
-   It pays in memory (10–20× more: 100–320 MB), a 40× larger image, and the need for `cluster`/multiple pods to use more than one core.
-   The build is the fastest of all.
-4. **Rust's compile time is its main tax**: a release build with LTO takes 1.5 min even after a one-line edit, and Docker builds
-   take ~2 min. Debug with incremental compilation is fine (1.2 s).
-5. **Both "production" gotchas were runtime issues, not code issues**: Rust + musl without mimalloc scaled *worse* at 4 CPUs than at 1
-   (`/health` 142k → 95k, DB endpoints 30–40% lower); Go needs `GOMAXPROCS=1` on a 1-CPU quota. Neither shows up
-   in functional tests, only under load.
+1. **Go is the best overall balance**: fastest to write, fast to rebuild (0.2–0.4 s), leads on almost every DB scenario,
+   ~30 MB of memory, 11 MB image. The catch: under a 1-CPU cgroup limit, Go 1.25+ still sets `GOMAXPROCS=2`,
+   which caused p99 spikes of 50–65 ms and cost 30–40% of throughput; `GOMAXPROCS=1` fixes it.
+2. **Rust is fastest where the code is its own** (`/health`, the proxy: 1.4–2.3× faster than Go/TS), and has the least memory,
+   the fastest startup and the smallest image. On database endpoints it is **close to Go at 1 thread, but falls behind at 4 threads**:
+   sqlx's overhead grows with concurrency. Two defaults cost Rust up to 2× before they were found: musl `malloc` and sqlx's
+   `test_before_acquire`. In Rust, what you get depends more on your library choices and their defaults than on the language.
+3. **TS/Node is surprisingly close on throughput**: 75–90% of Go at 1 process, and ahead of the Rust version that still had
+   the extra ping. It pays in memory (8–30× more than Go), an image 17× larger than Go's and 45× larger than Rust's, and the need for `cluster`/multiple pods to use more than one core.
+   With TS 7 the build takes a fraction of a second.
+4. **Rust's compile time is its main tax, especially in Docker/CI**: a release build with LTO in a musl container takes 1.5 min even after
+   a one-line edit (7.6 s natively on the Mac).
+5. **At realistic loads (well below saturation) the difference in CPU is within 30%**; most of the time is spent in the network and
+   in Postgres/upstream round-trips, not in the language.
+6. **The version upgrade barely changed the picture**; the biggest effects came from runtime and library settings
+   (allocator, GOMAXPROCS, the pool ping), none of which show up in functional tests, only under load.
 
 ## Caveats
 
-- Everything ran on one laptop in a Docker Desktop VM. The load generator shares CPU with the apps, so the absolute numbers
-  (especially `/health` above 150k rps) depend on the load generator too. The relative ratios are what count.
-- Postgres was tuned for benchmarking (`fsync=off`, tmpfs), so the database is not the bottleneck.
+- Everything ran on one laptop: the load generator, Postgres and the catalog share the CPU with the app. The relative ratios
+  matter more than the absolute numbers.
+- macOS can't pin threads to cores, and it moves them between P and E cores, so the native run is noisier than Docker (differences
+  up to ~10–15% between runs are possible). Docker gives hard CPU limits but adds VM and virtual-network overhead.
+- Postgres was tuned for benchmarking (`fsync=off`, `synchronous_commit=off`), so the database is not the bottleneck.
 - Frameworks were picked as "typical" ones (Fastify, stdlib, axum + sqlx) and not tuned to the limit.
-- The original Rust results (musl malloc) are in `results/load-rust-muslmalloc.json`.
 
 ## Reproducing
 
+Native (macOS, needs `brew install postgresql@17 oha go`, rustup, and Node 26 via nvm):
+
 ```sh
-docker compose up -d --build postgres catalog
-docker compose build app-ts app-go app-rust
+bench/native/infra.sh up                       # Postgres in /tmp/lc-pg on :15432 + catalog on :9000
+(cd ts && npm ci && npx tsc -p .); (cd go && go build -o /tmp/lc-go .); (cd rust && cargo build --release)
+bench/native/compile.sh                        # -> results/native/compile.txt
+python3 bench/native/load.py ts go rust        # -> results/native/load.json (~25 min)
+bench/native/infra.sh down
+```
+
+Docker:
+
+```sh
+docker compose up -d --build postgres catalog && docker compose build app-ts app-go app-rust
 python3 bench/conformance.py http://localhost:18080   # with one app running: docker compose --profile go up -d app-go
 bench/compile.sh                                       # -> results/compile.txt
 python3 bench/load.py ts go rust                       # -> results/load.json (~20 min)
