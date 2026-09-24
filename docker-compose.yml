@@ -1,0 +1,51 @@
+# Shared infra + the three apps. Apps are started one at a time by bench/run.sh.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: { POSTGRES_USER: app, POSTGRES_PASSWORD: app, POSTGRES_DB: app }
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
+    volumes:
+      - ./infra/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./infra/postgresql.conf:/etc/postgresql.conf:ro
+    tmpfs: [/var/lib/postgresql/data]
+    shm_size: 1g
+    cpus: 4
+    ports: ["15432:5432"]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "app"], interval: 1s, retries: 60 }
+  catalog:
+    build: ./catalog
+    cpus: 3
+    ports: ["9000:9000"]
+
+  app-ts:
+    build: ./ts
+    image: lc-ts
+    profiles: [ts]
+    environment: &appenv
+      DATABASE_URL: postgres://app:app@postgres:5432/app
+      CATALOG_URL: http://catalog:9000
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-20}
+      WORKERS: ${WORKERS:-1}
+      GOMAXPROCS: ${GOMAXPROCS:-}
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
+  app-go:
+    build: ./go
+    image: lc-go
+    profiles: [go]
+    environment: *appenv
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
+  app-rust:
+    build: ./rust
+    image: ${RUST_IMAGE:-lc-rust}
+    profiles: [rust]
+    environment: *appenv
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
