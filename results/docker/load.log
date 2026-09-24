@@ -1,0 +1,121 @@
+
+### ts 1cpu
+startup 0.346s idle mem 39.8 MB
+  health        {"rps": 71792.8, "p50_ms": 0.84, "p99_ms": 1.74, "success": 1.0, "errors": {"aborted due to deadline": 60}, "cpu_cores": 0.96, "peak_mem_mb": 50.8, "rps_per_core": 74784.0}
+  get_user      {"rps": 27506.7, "p50_ms": 2.2, "p99_ms": 5.01, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.966, "peak_mem_mb": 56.2, "rps_per_core": 28475.0}
+  proxy         {"rps": 27271.8, "p50_ms": 1.94, "p99_ms": 15.6, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.963, "peak_mem_mb": 66.4, "rps_per_core": 28320.0}
+  get_order     {"rps": 17287.2, "p50_ms": 3.53, "p99_ms": 7.8, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.964, "peak_mem_mb": 64.2, "rps_per_core": 17933.0}
+  list_orders   {"rps": 13264.8, "p50_ms": 4.58, "p99_ms": 9.33, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 0.967, "peak_mem_mb": 61.8, "rps_per_core": 13717.0}
+  create_order  {"rps": 5834.3, "p50_ms": 10.0, "p99_ms": 32.79, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.968, "peak_mem_mb": 63.2, "rps_per_core": 6027.0}
+  get_user@2000   {"rps": 1999.5, "p50_ms": 0.62, "p99_ms": 2.43, "success": 1.0, "errors": {"aborted due to deadline": 2}, "cpu_cores": 0.323, "peak_mem_mb": 63.7, "rps_per_core": 6190.0}
+  create_order@1000   {"rps": 1000.1, "p50_ms": 0.77, "p99_ms": 2.03, "success": 1.0, "errors": {"aborted due to deadline": 2}, "cpu_cores": 0.331, "peak_mem_mb": 62.5, "rps_per_core": 3021.0}
+
+### ts 4cpu
+startup 0.319s idle mem 170.8 MB
+  health        {"rps": 203097.9, "p50_ms": 0.28, "p99_ms": 0.69, "success": 1.0, "errors": {"aborted due to deadline": 58}, "cpu_cores": 3.802, "peak_mem_mb": 200.2, "rps_per_core": 53419.0}
+  get_user      {"rps": 72041.1, "p50_ms": 0.87, "p99_ms": 1.4, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.843, "peak_mem_mb": 213.1, "rps_per_core": 18746.0}
+  proxy         {"rps": 82558.2, "p50_ms": 0.68, "p99_ms": 2.14, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.845, "peak_mem_mb": 258.0, "rps_per_core": 21472.0}
+  get_order     {"rps": 46435.9, "p50_ms": 1.34, "p99_ms": 2.23, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 3.85, "peak_mem_mb": 246.3, "rps_per_core": 12061.0}
+  list_orders   {"rps": 37238.3, "p50_ms": 1.66, "p99_ms": 3.1, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.856, "peak_mem_mb": 244.2, "rps_per_core": 9657.0}
+  create_order  {"rps": 17791.6, "p50_ms": 3.4, "p99_ms": 9.36, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.861, "peak_mem_mb": 251.3, "rps_per_core": 4608.0}
+
+### ts-bun 1cpu
+startup 0.325s idle mem 35.2 MB
+  health        {"rps": 90948.0, "p50_ms": 0.66, "p99_ms": 1.37, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.959, "peak_mem_mb": 73.6, "rps_per_core": 94836.0}
+  get_user      {"rps": 31612.1, "p50_ms": 1.86, "p99_ms": 4.22, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.964, "peak_mem_mb": 74.6, "rps_per_core": 32793.0}
+  proxy         {"rps": 38235.6, "p50_ms": 1.13, "p99_ms": 28.03, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 0.963, "peak_mem_mb": 77.7, "rps_per_core": 39705.0}
+  get_order     {"rps": 18898.9, "p50_ms": 3.1, "p99_ms": 7.46, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.967, "peak_mem_mb": 76.0, "rps_per_core": 19544.0}
+  list_orders   {"rps": 15415.1, "p50_ms": 3.81, "p99_ms": 9.15, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.967, "peak_mem_mb": 79.9, "rps_per_core": 15941.0}
+  create_order  {"rps": 6595.0, "p50_ms": 7.5, "p99_ms": 31.35, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.968, "peak_mem_mb": 83.3, "rps_per_core": 6813.0}
+  get_user@2000   {"rps": 1999.6, "p50_ms": 0.6, "p99_ms": 3.24, "success": 1.0, "errors": {"aborted due to deadline": 1}, "cpu_cores": 0.358, "peak_mem_mb": 77.8, "rps_per_core": 5585.0}
+  create_order@1000   {"rps": 1000.1, "p50_ms": 0.77, "p99_ms": 2.23, "success": 1.0, "errors": {"aborted due to deadline": 3}, "cpu_cores": 0.395, "peak_mem_mb": 79.6, "rps_per_core": 2532.0}
+
+### ts-bun 4cpu
+startup 0.313s idle mem 146.8 MB
+  health        {"rps": 200167.5, "p50_ms": 0.29, "p99_ms": 1.03, "success": 1.0, "errors": {"aborted due to deadline": 60}, "cpu_cores": 3.802, "peak_mem_mb": 256.6, "rps_per_core": 52648.0}
+  get_user      {"rps": 71228.6, "p50_ms": 0.84, "p99_ms": 2.34, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.842, "peak_mem_mb": 293.3, "rps_per_core": 18539.0}
+  proxy         {"rps": 91058.1, "p50_ms": 0.49, "p99_ms": 2.46, "success": 1.0, "errors": {"aborted due to deadline": 58}, "cpu_cores": 3.841, "peak_mem_mb": 280.4, "rps_per_core": 23707.0}
+  get_order     {"rps": 49288.6, "p50_ms": 1.16, "p99_ms": 3.77, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 3.85, "peak_mem_mb": 287.1, "rps_per_core": 12802.0}
+  list_orders   {"rps": 37140.5, "p50_ms": 1.49, "p99_ms": 6.04, "success": 1.0, "errors": {"aborted due to deadline": 59}, "cpu_cores": 3.843, "peak_mem_mb": 290.9, "rps_per_core": 9664.0}
+  create_order  {"rps": 17608.3, "p50_ms": 2.98, "p99_ms": 18.85, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.863, "peak_mem_mb": 307.7, "rps_per_core": 4558.0}
+
+### go 1cpu
+startup 0.316s idle mem 4.9 MB
+  health        {"rps": 93746.8, "p50_ms": 0.68, "p99_ms": 1.53, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 0.956, "peak_mem_mb": 11.8, "rps_per_core": 98062.0}
+  get_user      {"rps": 36202.6, "p50_ms": 1.67, "p99_ms": 3.22, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 0.963, "peak_mem_mb": 17.8, "rps_per_core": 37594.0}
+  proxy         {"rps": 35416.9, "p50_ms": 1.6, "p99_ms": 3.7, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.962, "peak_mem_mb": 19.2, "rps_per_core": 36816.0}
+  get_order     {"rps": 22797.8, "p50_ms": 2.71, "p99_ms": 4.92, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.965, "peak_mem_mb": 22.8, "rps_per_core": 23625.0}
+  list_orders   {"rps": 19031.6, "p50_ms": 3.12, "p99_ms": 5.64, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.965, "peak_mem_mb": 26.2, "rps_per_core": 19722.0}
+  create_order  {"rps": 7577.2, "p50_ms": 8.19, "p99_ms": 11.21, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.965, "peak_mem_mb": 26.8, "rps_per_core": 7852.0}
+  get_user@2000   {"rps": 1999.7, "p50_ms": 0.52, "p99_ms": 2.22, "success": 1.0, "errors": {"aborted due to deadline": 2}, "cpu_cores": 0.233, "peak_mem_mb": 26.3, "rps_per_core": 8582.0}
+  create_order@1000   {"rps": 1000.1, "p50_ms": 0.76, "p99_ms": 1.8, "success": 1.0, "errors": {"aborted due to deadline": 4}, "cpu_cores": 0.264, "peak_mem_mb": 26.8, "rps_per_core": 3788.0}
+
+### go 4cpu
+startup 0.3s idle mem 5.0 MB
+  health        {"rps": 195337.1, "p50_ms": 0.25, "p99_ms": 1.21, "success": 1.0, "errors": {"aborted due to deadline": 57}, "cpu_cores": 3.687, "peak_mem_mb": 16.1, "rps_per_core": 52980.0}
+  get_user      {"rps": 81238.3, "p50_ms": 0.73, "p99_ms": 1.66, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.679, "peak_mem_mb": 22.9, "rps_per_core": 22082.0}
+  proxy         {"rps": 83075.7, "p50_ms": 0.64, "p99_ms": 2.47, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.496, "peak_mem_mb": 29.4, "rps_per_core": 23763.0}
+  get_order     {"rps": 57131.6, "p50_ms": 1.02, "p99_ms": 2.82, "success": 1.0, "errors": {"aborted due to deadline": 59}, "cpu_cores": 3.439, "peak_mem_mb": 30.1, "rps_per_core": 16613.0}
+  list_orders   {"rps": 48427.8, "p50_ms": 1.2, "p99_ms": 2.57, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 3.654, "peak_mem_mb": 31.0, "rps_per_core": 13253.0}
+  create_order  {"rps": 21015.8, "p50_ms": 2.84, "p99_ms": 6.22, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.377, "peak_mem_mb": 30.6, "rps_per_core": 6223.0}
+
+### go-fasthttp 1cpu
+startup 0.301s idle mem 3.0 MB
+  health        {"rps": 164237.2, "p50_ms": 0.38, "p99_ms": 0.87, "success": 1.0, "errors": {"aborted due to deadline": 60}, "cpu_cores": 0.953, "peak_mem_mb": 9.0, "rps_per_core": 172337.0}
+  get_user      {"rps": 43537.2, "p50_ms": 1.45, "p99_ms": 2.75, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.963, "peak_mem_mb": 13.8, "rps_per_core": 45210.0}
+  proxy         {"rps": 61534.2, "p50_ms": 0.94, "p99_ms": 2.25, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.954, "peak_mem_mb": 16.0, "rps_per_core": 64501.0}
+  get_order     {"rps": 25929.1, "p50_ms": 2.38, "p99_ms": 4.06, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.965, "peak_mem_mb": 16.6, "rps_per_core": 26870.0}
+  list_orders   {"rps": 21861.0, "p50_ms": 2.73, "p99_ms": 4.94, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.963, "peak_mem_mb": 17.3, "rps_per_core": 22701.0}
+  create_order  {"rps": 9526.1, "p50_ms": 6.59, "p99_ms": 8.96, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 0.965, "peak_mem_mb": 18.0, "rps_per_core": 9872.0}
+  get_user@2000   {"rps": 2000.0, "p50_ms": 0.46, "p99_ms": 1.91, "success": 1.0, "errors": {"aborted due to deadline": 5}, "cpu_cores": 0.216, "peak_mem_mb": 18.0, "rps_per_core": 9259.0}
+  create_order@1000   {"rps": 1000.0, "p50_ms": 0.71, "p99_ms": 1.41, "success": 1.0, "errors": {"aborted due to deadline": 3}, "cpu_cores": 0.244, "peak_mem_mb": 18.1, "rps_per_core": 4098.0}
+
+### go-fasthttp 4cpu
+startup 0.323s idle mem 5.1 MB
+  health        {"rps": 318991.1, "p50_ms": 0.16, "p99_ms": 0.66, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 3.741, "peak_mem_mb": 16.7, "rps_per_core": 85269.0}
+  get_user      {"rps": 100072.1, "p50_ms": 0.6, "p99_ms": 1.36, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 3.656, "peak_mem_mb": 22.3, "rps_per_core": 27372.0}
+  proxy         {"rps": 160485.4, "p50_ms": 0.34, "p99_ms": 1.44, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 3.491, "peak_mem_mb": 26.9, "rps_per_core": 45971.0}
+  get_order     {"rps": 58257.6, "p50_ms": 0.94, "p99_ms": 4.89, "success": 1.0, "errors": {"aborted due to deadline": 57}, "cpu_cores": 3.193, "peak_mem_mb": 23.3, "rps_per_core": 18245.0}
+  list_orders   {"rps": 52378.1, "p50_ms": 1.13, "p99_ms": 2.28, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 3.62, "peak_mem_mb": 24.2, "rps_per_core": 14469.0}
+  create_order  {"rps": 20761.1, "p50_ms": 2.64, "p99_ms": 15.74, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 2.709, "peak_mem_mb": 28.3, "rps_per_core": 7664.0}
+
+### rust 1cpu
+startup 0.304s idle mem 6.8 MB
+  health        {"rps": 144432.4, "p50_ms": 0.44, "p99_ms": 0.66, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 0.957, "peak_mem_mb": 10.5, "rps_per_core": 150922.0}
+  get_user      {"rps": 31237.8, "p50_ms": 2.0, "p99_ms": 2.68, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.964, "peak_mem_mb": 16.2, "rps_per_core": 32404.0}
+  proxy         {"rps": 48672.9, "p50_ms": 1.27, "p99_ms": 2.12, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.96, "peak_mem_mb": 21.5, "rps_per_core": 50701.0}
+  get_order     {"rps": 17698.3, "p50_ms": 3.55, "p99_ms": 4.72, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 0.965, "peak_mem_mb": 20.3, "rps_per_core": 18340.0}
+  list_orders   {"rps": 15313.0, "p50_ms": 4.1, "p99_ms": 5.44, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.965, "peak_mem_mb": 21.0, "rps_per_core": 15868.0}
+  create_order  {"rps": 7860.6, "p50_ms": 8.12, "p99_ms": 9.86, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.965, "peak_mem_mb": 21.7, "rps_per_core": 8146.0}
+  get_user@2000   {"rps": 1999.8, "p50_ms": 0.5, "p99_ms": 2.07, "success": 1.0, "errors": {"aborted due to deadline": 3}, "cpu_cores": 0.263, "peak_mem_mb": 21.5, "rps_per_core": 7604.0}
+  create_order@1000   {"rps": 1000.1, "p50_ms": 0.71, "p99_ms": 1.37, "success": 1.0, "errors": {"aborted due to deadline": 3}, "cpu_cores": 0.264, "peak_mem_mb": 21.4, "rps_per_core": 3788.0}
+
+### rust 4cpu
+startup 0.32s idle mem 8.9 MB
+  health        {"rps": 268654.9, "p50_ms": 0.23, "p99_ms": 0.44, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 3.61, "peak_mem_mb": 14.6, "rps_per_core": 74420.0}
+  get_user      {"rps": 57820.8, "p50_ms": 1.1, "p99_ms": 1.43, "success": 1.0, "errors": {"aborted due to deadline": 62}, "cpu_cores": 3.71, "peak_mem_mb": 23.9, "rps_per_core": 15585.0}
+  proxy         {"rps": 100656.4, "p50_ms": 0.61, "p99_ms": 1.71, "success": 1.0, "errors": {"aborted due to deadline": 60}, "cpu_cores": 3.591, "peak_mem_mb": 28.9, "rps_per_core": 28030.0}
+  get_order     {"rps": 33688.6, "p50_ms": 1.89, "p99_ms": 2.49, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.683, "peak_mem_mb": 27.5, "rps_per_core": 9147.0}
+  list_orders   {"rps": 30589.4, "p50_ms": 2.09, "p99_ms": 2.42, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 3.772, "peak_mem_mb": 29.4, "rps_per_core": 8110.0}
+  create_order  {"rps": 18269.3, "p50_ms": 3.41, "p99_ms": 6.26, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.482, "peak_mem_mb": 33.7, "rps_per_core": 5247.0}
+
+### py 1cpu
+startup 0.635s idle mem 50.9 MB
+  health        {"rps": 29388.4, "p50_ms": 2.0, "p99_ms": 4.19, "success": 1.0, "errors": {"aborted due to deadline": 57}, "cpu_cores": 0.964, "peak_mem_mb": 52.1, "rps_per_core": 30486.0}
+  get_user      {"rps": 9430.9, "p50_ms": 4.08, "p99_ms": 29.0, "success": 1.0, "errors": {"aborted due to deadline": 63}, "cpu_cores": 0.964, "peak_mem_mb": 53.4, "rps_per_core": 9783.0}
+  proxy         {"rps": 9072.5, "p50_ms": 6.38, "p99_ms": 14.11, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.967, "peak_mem_mb": 54.0, "rps_per_core": 9382.0}
+  get_order     {"rps": 5920.1, "p50_ms": 7.73, "p99_ms": 40.32, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.966, "peak_mem_mb": 54.1, "rps_per_core": 6128.0}
+  list_orders   {"rps": 5118.0, "p50_ms": 10.21, "p99_ms": 43.2, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.967, "peak_mem_mb": 54.3, "rps_per_core": 5293.0}
+  create_order  {"rps": 2350.1, "p50_ms": 22.94, "p99_ms": 78.09, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 0.964, "peak_mem_mb": 54.7, "rps_per_core": 2438.0}
+  get_user@2000   {"rps": 1999.7, "p50_ms": 0.93, "p99_ms": 2.78, "success": 1.0, "errors": {"aborted due to deadline": 3}, "cpu_cores": 0.406, "peak_mem_mb": 54.9, "rps_per_core": 4925.0}
+  create_order@1000   {"rps": 1000.0, "p50_ms": 0.9, "p99_ms": 1.96, "success": 1.0, "errors": {"aborted due to deadline": 12}, "cpu_cores": 0.469, "peak_mem_mb": 55.3, "rps_per_core": 2132.0}
+
+### py 4cpu
+startup 0.955s idle mem 235.6 MB
+  health        {"rps": 95926.7, "p50_ms": 0.58, "p99_ms": 1.27, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.832, "peak_mem_mb": 237.0, "rps_per_core": 25033.0}
+  get_user      {"rps": 26256.6, "p50_ms": 2.38, "p99_ms": 6.21, "success": 1.0, "errors": {"aborted due to deadline": 61}, "cpu_cores": 3.854, "peak_mem_mb": 238.2, "rps_per_core": 6813.0}
+  proxy         {"rps": 34796.4, "p50_ms": 1.8, "p99_ms": 2.93, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.847, "peak_mem_mb": 239.5, "rps_per_core": 9045.0}
+  get_order     {"rps": 16696.8, "p50_ms": 3.47, "p99_ms": 9.82, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.857, "peak_mem_mb": 239.6, "rps_per_core": 4329.0}
+  list_orders   {"rps": 15079.4, "p50_ms": 3.63, "p99_ms": 10.96, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.856, "peak_mem_mb": 239.6, "rps_per_core": 3911.0}
+  create_order  {"rps": 7773.4, "p50_ms": 7.98, "p99_ms": 16.9, "success": 1.0, "errors": {"aborted due to deadline": 64}, "cpu_cores": 3.864, "peak_mem_mb": 240.4, "rps_per_core": 2012.0}
+EXIT 0

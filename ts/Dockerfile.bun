@@ -1,0 +1,16 @@
+# Same compiled code as the Node image, run on Bun.
+FROM node:26-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY src ./src
+RUN npx tsc -p . && npm prune --omit=dev
+
+FROM oven/bun:1-alpine
+WORKDIR /app
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY package.json ./
+USER bun
+CMD ["bun", "dist/main.js"]

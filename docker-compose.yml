@@ -31,6 +31,24 @@ services:
     mem_limit: 1g
     ports: ["18080:8080"]
     depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
+  app-ts-bun:
+    build: { context: ./ts, dockerfile: Dockerfile.bun }
+    image: lc-ts-bun
+    profiles: [ts-bun]
+    environment: *appenv
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
+  app-go-fasthttp:
+    build: ./go-fasthttp
+    image: lc-go-fasthttp
+    profiles: [go-fasthttp]
+    environment: *appenv
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
   app-py:
     build: ./py
     image: lc-py

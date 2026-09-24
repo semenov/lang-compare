@@ -17,8 +17,10 @@ There are two sets of measurements:
 
 - **A. Native macOS, latest versions** (the main one): everything runs directly on the MacBook Pro M3 Max
   (10P+4E cores, 36 GB): Postgres 17, the catalog mock, the app, and the load generator [oha](https://github.com/hatoo/oha).
-- **B. Docker, previous versions** (Node 24, TS 5.9, sqlx 0.8 with default settings): Docker Desktop, a Linux VM,
-  with hard CPU limits via cgroups. It is kept because it shows the effect of container CPU limits.
+- **C. Docker, all variants, current versions**: Docker Desktop (a Linux VM) with hard CPU limits via cgroups
+  (1 or 4 CPU per app). Closest to how services run in production (k8s/containers).
+- **B. Docker, previous versions** (Node 24, TS 5.9, sqlx 0.8 with default settings): the first run; it is kept for the findings
+  about GOMAXPROCS and musl malloc.
 
 ## 1. Time to write
 
@@ -62,8 +64,8 @@ TS/Go: median of 3 runs. Rust: 1 run. Every run starts from a cold cache.
 | | TS | Go | Rust | Python |
 |---|---|---|---|---|
 | Artifact | 28 KB JS + ~18 MB node_modules (+ the node runtime; the Bun binary is 62 MB) | 10.8 MB static binary | 4.1 MB static binary (musl + mimalloc) | sources + a venv with dependencies |
-| Docker image (uncompressed) | 190 MB (node:26-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) | **224 MB** (python:3.14-slim) |
-| Docker image (gzip, ≈ registry size) | 67 MB | 3.8 MB | 1.8 MB | 66 MB |
+| Docker image (uncompressed) | 190 MB (node:26-alpine); **97 MB on Bun** (oven/bun:1-alpine) | 10.8 MB (`scratch`) | **4.1 MB** (`scratch`) | **224 MB** (python:3.14-slim) |
+| Docker image (gzip, ≈ registry size) | 67 MB (Node) | 3.8 MB | 1.8 MB | 66 MB |
 
 ## 4. Run A — native macOS, latest versions
 
@@ -127,7 +129,47 @@ use ~1–1.5 cores and are no faster than a single one. On Linux it should behav
   where Node used 1. **Per core it's roughly the same as Node** (`POST /orders`: 8.0k vs 7.6k rps/core), yet it uses ~1.5× less memory.
   On macOS, cluster mode didn't help it at all (see ⁴). Compatibility: pg and Fastify worked unchanged, `undici` didn't.
 
-## 5. Run B — Docker with CPU limits (previous versions)
+## 5. Run C — Docker with CPU limits, all variants, current versions
+
+Linux VM with 14 vCPU; Postgres 4 CPU, catalog 3 CPU, the app is hard-limited to 1 or 4 CPU (`--cpus`); Node/Bun/Python scale with 4 processes,
+Go with `GOMAXPROCS=1` under the 1-CPU limit (see run B). Memory comes from cgroups (as in `docker stats`). Success rate was 100% everywhere.
+
+### 1 CPU
+
+| Scenario | Python | TS (Node) | TS (Bun) | Go (net/http) | Go (fasthttp) | Rust |
+|---|---|---|---|---|---|---|
+| `GET /health` | 29.4k | 71.8k | 90.9k | 93.7k | **164.2k** | 144.4k |
+| `GET /users/{id}` | 9.4k | 27.5k | 31.6k | 36.2k | **43.5k** | 31.2k |
+| `GET /products/{sku}` (proxy) | 9.1k | 27.3k | 38.2k | 35.4k | **61.5k** | 48.7k |
+| `GET /orders/{id}` | 5.9k | 17.3k | 18.9k | 22.8k | **25.9k** | 17.7k |
+| `GET /users/{id}/orders` | 5.1k | 13.3k | 15.4k | 19.0k | **21.9k** | 15.3k |
+| `POST /orders` | 2.4k | 5.8k | 6.6k | 7.6k | **9.5k** | 7.9k |
+| p99 `POST /orders` | 78 ms | 33 ms | 31 ms | 11 ms | **9 ms** | 10 ms |
+| Memory idle / peak | 51 / 55 MB | 40 / 66 MB | 35 / 83 MB | 5 / 27 MB | **3 / 18 MB** | 7 / 22 MB |
+| CPU for `POST /orders` @ 1000 rps | 0.47 | 0.33 | 0.40 | 0.26 | **0.24** | 0.26 |
+
+### 4 CPU
+
+| Scenario | Python | TS (Node) | TS (Bun) | Go (net/http) | Go (fasthttp) | Rust |
+|---|---|---|---|---|---|---|
+| `GET /health` | 95.9k | 203.1k | 200.2k | 195.3k | **319.0k** | 268.7k |
+| `GET /users/{id}` | 26.3k | 72.0k | 71.2k | 81.2k | **100.1k** | 57.8k |
+| `GET /products/{sku}` (proxy) | 34.8k | 82.6k | 91.1k | 83.1k | **160.5k** | 100.7k |
+| `GET /orders/{id}` | 16.7k | 46.4k | 49.3k | 57.1k | **58.3k** | 33.7k |
+| `GET /users/{id}/orders` | 15.1k | 37.2k | 37.1k | 48.4k | **52.4k** | 30.6k |
+| `POST /orders` | 7.8k | **17.8k** | 17.6k | **21.0k** | **20.8k** | 18.3k |
+| p99 `POST /orders` | 17 ms | 9 ms | 19 ms | **6 ms** | 16 ms | **6 ms** |
+| Memory idle / peak | 236 / 240 MB | 171 / 258 MB | 147 / 308 MB | 5 / 31 MB | 5 / 28 MB | 9 / 34 MB |
+
+What Docker settled that the Mac run couldn't:
+- **fasthttp scales normally on Linux** and is the fastest variant overall (up to 1.9× faster than net/http; at 4 CPU on DB endpoints it is level); on `POST /orders` at 4 CPU it
+  ties net/http (~21k), because Postgres and the upstream become the limit, but it gets there on 2.7 cores instead of 3.4.
+  The poor 4-thread result on the Mac was a macOS artefact.
+- **Bun's cluster mode works on Linux** (all 3.9 cores are used). On equal CPU Bun is +10–40% faster than Node at 1 CPU, but at 4 CPU they are level;
+  at a fixed load Bun needs a bit more CPU than Node (0.40 vs 0.33 cores).
+- **Python** scales with processes (×2.8–3.8 from 1 → 4 CPU) but stays 2–3× behind Node and 2.2–3.4× behind Go.
+
+## 6. Run B — Docker with CPU limits (previous versions)
 
 Linux VM with 14 vCPU; Postgres 4 CPU, catalog 3 CPU, the app 1 or 4 CPU via `--cpus`. Memory comes from cgroups (as in `docker stats`).
 Rust here is still on sqlx 0.8 with the extra ping, but already with mimalloc.
@@ -165,8 +207,9 @@ The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs t
 
 6. **At realistic loads (well below saturation) the difference in CPU is within 30%**; most of the time is spent in the network and
    in Postgres/upstream round-trips, not in the language.
-7. **Alternative runtimes/frameworks give +15–70%** (fasthttp for Go, Bun for TS), which is less than the gap between languages
-   and less than the effect of the right settings; the price is incompatibility (fasthttp) or extra threads/compatibility risks (Bun).
+7. **Alternative runtimes/frameworks:** fasthttp makes Go the fastest variant overall (up to 1.9× faster than net/http, level on DB endpoints at 4 CPU; the proxy and `/health` gain the most);
+   the price is rewriting the HTTP layer and losing net/http compatibility. Bun beats Node by 10–40% at 1 CPU, is level at 4 CPU,
+   and has half the image size; porting was almost free (only undici → fetch).
 8. **The version upgrade barely changed the picture**; the biggest effects came from runtime and library settings
    (allocator, GOMAXPROCS, the pool ping), none of which show up in functional tests, only under load.
 
@@ -195,9 +238,10 @@ bench/native/infra.sh down
 Docker:
 
 ```sh
-docker compose up -d --build postgres catalog && docker compose build app-ts app-go app-rust
+docker compose up -d --build postgres catalog && docker compose build app-ts app-ts-bun app-go app-go-fasthttp app-rust app-py
 python3 bench/conformance.py http://localhost:18080   # with one app running: docker compose --profile go up -d app-go
 bench/compile.sh                                       # -> results/compile.txt
 python3 bench/load.py ts go rust                       # -> results/load.json (~20 min)
 ONLY_CFG=1cpu GOMAXPROCS=1 LABEL=-gomaxprocs1 python3 bench/load.py go
+OUT=results/docker/load.json python3 bench/load.py ts ts-bun go go-fasthttp rust py   # run C (~50 min)
 ```

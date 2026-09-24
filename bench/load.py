@@ -24,6 +24,10 @@ SCENARIOS = [  # name, method, url-regex (path), body
 ]
 FIXED_RATE = [("get_user", 2000), ("create_order", 1000)]  # (scenario, rps) at equal load
 
+MULTIPROC = {"ts", "ts-bun", "py"}  # scale by processes (node/bun cluster, uvicorn --workers)
+OUT = os.environ.get("OUT", "results/load.json")
+ALL_APPS = ["ts", "ts-bun", "go", "go-fasthttp", "rust", "py"]
+
 CONFIGS = [  # name, APP_CPUS, WORKERS(ts only), DB_POOL_SIZE
     ("1cpu", 1, 1, 20),
     ("4cpu", 4, 4, 20),
@@ -117,17 +121,21 @@ def main():
     langs = sys.argv[1:] or ["ts", "go", "rust"]
     sh("docker rm -f cgmon", check=False)
     sh("docker run -d --name cgmon --privileged -v /sys/fs/cgroup:/cg:ro alpine sleep infinity")
-    results = json.load(open("results/load.json")) if os.path.exists("results/load.json") else {}
+    results = json.load(open(OUT)) if os.path.exists(OUT) else {}
     try:
         for lang in langs:
             for cfg_name, cpus, workers, pool in CONFIGS:
                 if os.environ.get("ONLY_CFG") and cfg_name != os.environ["ONLY_CFG"]:
                     continue
                 svc = f"app-{lang}"
-                env = dict(os.environ, APP_CPUS=str(cpus), WORKERS=str(workers if lang == "ts" else 1),
-                           DB_POOL_SIZE=str(pool // workers if lang == "ts" else pool))
+                multiproc = lang in MULTIPROC
+                env = dict(os.environ, APP_CPUS=str(cpus), WORKERS=str(workers if multiproc else 1),
+                           DB_POOL_SIZE=str(pool // workers if multiproc else pool))
+                if lang.startswith("go") and cpus == 1:
+                    env["GOMAXPROCS"] = "1"  # Go 1.25+ picks 2 under a 1-CPU quota, which throttles badly
                 print(f"\n### {lang} {cfg_name}", flush=True)
-                sh("docker compose --profile ts --profile go --profile rust stop app-ts app-go app-rust", check=False)
+                sh("docker compose " + " ".join(f"--profile {a}" for a in ALL_APPS) + " stop "
+                   + " ".join(f"app-{a}" for a in ALL_APPS), check=False)
                 sh("docker compose up -d --force-recreate --wait postgres catalog", env=env)
                 sh(f"docker compose --profile {lang} create --force-recreate {svc}", env=env)
                 t0 = time.time()
@@ -155,7 +163,7 @@ def main():
                         print(f"  {sname}@{rate:<6} {json.dumps(res)}", flush=True)
                 entry["mem_after_load_mb"] = round(cg.mem_bytes() / 2**20, 1)
                 results.setdefault(lang + os.environ.get("LABEL", ""), {})[cfg_name] = entry
-                json.dump(results, open("results/load.json", "w"), indent=1)
+                json.dump(results, open(OUT, "w"), indent=1)
                 sh(f"docker compose --profile {lang} stop {svc}", check=False)
     finally:
         sh("docker rm -f cgmon", check=False)
