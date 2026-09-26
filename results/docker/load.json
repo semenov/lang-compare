@@ -1114,5 +1114,563 @@
    },
    "mem_after_load_mb": 239.2
   }
+ },
+ "ts-sqlite": {
+  "1cpu": {
+   "startup_s": 0.677,
+   "idle_mem_mb": 131.7,
+   "scenarios": {
+    "health": {
+     "rps": 73665.4,
+     "p50_ms": 0.82,
+     "p99_ms": 1.68,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.96,
+     "peak_mem_mb": 139.9,
+     "rps_per_core": 76735.0
+    },
+    "get_user": {
+     "rps": 55325.1,
+     "p50_ms": 1.11,
+     "p99_ms": 2.24,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 0.961,
+     "peak_mem_mb": 142.3,
+     "rps_per_core": 57570.0
+    },
+    "proxy": {
+     "rps": 27617.9,
+     "p50_ms": 1.94,
+     "p99_ms": 15.25,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 0.964,
+     "peak_mem_mb": 158.5,
+     "rps_per_core": 28649.0
+    },
+    "get_order": {
+     "rps": 28865.5,
+     "p50_ms": 2.13,
+     "p99_ms": 4.23,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 59
+     },
+     "cpu_cores": 0.962,
+     "peak_mem_mb": 173.1,
+     "rps_per_core": 30006.0
+    },
+    "list_orders": {
+     "rps": 22882.6,
+     "p50_ms": 2.64,
+     "p99_ms": 5.46,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 0.963,
+     "peak_mem_mb": 172.7,
+     "rps_per_core": 23762.0
+    },
+    "create_order": {
+     "rps": 9473.6,
+     "p50_ms": 6.0,
+     "p99_ms": 26.24,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.966,
+     "peak_mem_mb": 208.8,
+     "rps_per_core": 9807.0
+    }
+   },
+   "fixed_rate": {
+    "get_user@2000": {
+     "rps": 1999.7,
+     "p50_ms": 0.35,
+     "p99_ms": 1.55,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 1
+     },
+     "cpu_cores": 0.202,
+     "peak_mem_mb": 210.1,
+     "rps_per_core": 9900.0
+    },
+    "create_order@1000": {
+     "rps": 1000.0,
+     "p50_ms": 0.51,
+     "p99_ms": 2.52,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 3
+     },
+     "cpu_cores": 0.337,
+     "peak_mem_mb": 212.4,
+     "rps_per_core": 2967.0
+    }
+   },
+   "mem_after_load_mb": 210.5
+  },
+  "4cpu": {
+   "startup_s": 0.74,
+   "idle_mem_mb": 188.2,
+   "scenarios": {
+    "health": {
+     "rps": 202759.0,
+     "p50_ms": 0.29,
+     "p99_ms": 0.7,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 61
+     },
+     "cpu_cores": 3.795,
+     "peak_mem_mb": 216.5,
+     "rps_per_core": 53428.0
+    },
+    "get_user": {
+     "rps": 164301.1,
+     "p50_ms": 0.35,
+     "p99_ms": 0.81,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 60
+     },
+     "cpu_cores": 3.812,
+     "peak_mem_mb": 220.1,
+     "rps_per_core": 43101.0
+    },
+    "proxy": {
+     "rps": 83822.3,
+     "p50_ms": 0.66,
+     "p99_ms": 2.15,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 3.847,
+     "peak_mem_mb": 273.9,
+     "rps_per_core": 21789.0
+    },
+    "get_order": {
+     "rps": 94542.5,
+     "p50_ms": 0.63,
+     "p99_ms": 1.42,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 61
+     },
+     "cpu_cores": 3.831,
+     "peak_mem_mb": 327.6,
+     "rps_per_core": 24678.0
+    },
+    "list_orders": {
+     "rps": 74530.5,
+     "p50_ms": 0.78,
+     "p99_ms": 1.78,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 58
+     },
+     "cpu_cores": 3.842,
+     "peak_mem_mb": 329.7,
+     "rps_per_core": 19399.0
+    },
+    "create_order": {
+     "rps": 9612.1,
+     "p50_ms": 2.08,
+     "p99_ms": 61.82,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 1.129,
+     "peak_mem_mb": 299.1,
+     "rps_per_core": 8514.0
+    }
+   },
+   "mem_after_load_mb": 299.7
+  }
+ },
+ "go-sqlite": {
+  "1cpu": {
+   "startup_s": 0.442,
+   "idle_mem_mb": 41.9,
+   "scenarios": {
+    "health": {
+     "rps": 91976.4,
+     "p50_ms": 0.69,
+     "p99_ms": 1.55,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 0.958,
+     "peak_mem_mb": 48.5,
+     "rps_per_core": 96009.0
+    },
+    "get_user": {
+     "rps": 51550.8,
+     "p50_ms": 1.2,
+     "p99_ms": 1.72,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.961,
+     "peak_mem_mb": 49.4,
+     "rps_per_core": 53643.0
+    },
+    "proxy": {
+     "rps": 35302.6,
+     "p50_ms": 1.6,
+     "p99_ms": 3.65,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 0.961,
+     "peak_mem_mb": 53.4,
+     "rps_per_core": 36735.0
+    },
+    "get_order": {
+     "rps": 31496.7,
+     "p50_ms": 1.9,
+     "p99_ms": 3.0,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 0.953,
+     "peak_mem_mb": 54.9,
+     "rps_per_core": 33050.0
+    },
+    "list_orders": {
+     "rps": 20618.8,
+     "p50_ms": 3.06,
+     "p99_ms": 5.67,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.962,
+     "peak_mem_mb": 55.4,
+     "rps_per_core": 21433.0
+    },
+    "create_order": {
+     "rps": 9356.7,
+     "p50_ms": 6.22,
+     "p99_ms": 12.25,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.962,
+     "peak_mem_mb": 90.0,
+     "rps_per_core": 9726.0
+    }
+   },
+   "fixed_rate": {
+    "get_user@2000": {
+     "rps": 1999.4,
+     "p50_ms": 0.38,
+     "p99_ms": 1.5,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 1
+     },
+     "cpu_cores": 0.218,
+     "peak_mem_mb": 91.1,
+     "rps_per_core": 9172.0
+    },
+    "create_order@1000": {
+     "rps": 1000.0,
+     "p50_ms": 0.62,
+     "p99_ms": 2.75,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 3
+     },
+     "cpu_cores": 0.329,
+     "peak_mem_mb": 93.7,
+     "rps_per_core": 3040.0
+    }
+   },
+   "mem_after_load_mb": 93.3
+  },
+  "4cpu": {
+   "startup_s": 0.37,
+   "idle_mem_mb": 37.0,
+   "scenarios": {
+    "health": {
+     "rps": 196137.4,
+     "p50_ms": 0.25,
+     "p99_ms": 1.21,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 59
+     },
+     "cpu_cores": 3.68,
+     "peak_mem_mb": 49.2,
+     "rps_per_core": 53298.0
+    },
+    "get_user": {
+     "rps": 119716.8,
+     "p50_ms": 0.15,
+     "p99_ms": 9.06,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 60
+     },
+     "cpu_cores": 3.483,
+     "peak_mem_mb": 65.1,
+     "rps_per_core": 34372.0
+    },
+    "proxy": {
+     "rps": 79457.6,
+     "p50_ms": 0.66,
+     "p99_ms": 2.51,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 3.447,
+     "peak_mem_mb": 69.2,
+     "rps_per_core": 23051.0
+    },
+    "get_order": {
+     "rps": 82046.4,
+     "p50_ms": 0.39,
+     "p99_ms": 8.42,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 3.597,
+     "peak_mem_mb": 96.2,
+     "rps_per_core": 22810.0
+    },
+    "list_orders": {
+     "rps": 53228.8,
+     "p50_ms": 1.02,
+     "p99_ms": 3.51,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 3.605,
+     "peak_mem_mb": 96.6,
+     "rps_per_core": 14765.0
+    },
+    "create_order": {
+     "rps": 12252.5,
+     "p50_ms": 3.71,
+     "p99_ms": 22.96,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 1.802,
+     "peak_mem_mb": 131.7,
+     "rps_per_core": 6799.0
+    }
+   },
+   "mem_after_load_mb": 133.1
+  }
+ },
+ "rust-sqlite": {
+  "1cpu": {
+   "startup_s": 0.46,
+   "idle_mem_mb": 36.8,
+   "scenarios": {
+    "health": {
+     "rps": 144777.8,
+     "p50_ms": 0.43,
+     "p99_ms": 0.66,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 0.955,
+     "peak_mem_mb": 40.5,
+     "rps_per_core": 151600.0
+    },
+    "get_user": {
+     "rps": 12619.9,
+     "p50_ms": 5.02,
+     "p99_ms": 6.48,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 0.645,
+     "peak_mem_mb": 41.5,
+     "rps_per_core": 19566.0
+    },
+    "proxy": {
+     "rps": 49707.9,
+     "p50_ms": 1.25,
+     "p99_ms": 2.07,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.959,
+     "peak_mem_mb": 50.7,
+     "rps_per_core": 51833.0
+    },
+    "get_order": {
+     "rps": 10755.3,
+     "p50_ms": 5.89,
+     "p99_ms": 7.5,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 0.701,
+     "peak_mem_mb": 50.1,
+     "rps_per_core": 15343.0
+    },
+    "list_orders": {
+     "rps": 5856.6,
+     "p50_ms": 10.82,
+     "p99_ms": 13.49,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.685,
+     "peak_mem_mb": 48.3,
+     "rps_per_core": 8550.0
+    },
+    "create_order": {
+     "rps": 6090.8,
+     "p50_ms": 9.03,
+     "p99_ms": 27.42,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 0.968,
+     "peak_mem_mb": 79.9,
+     "rps_per_core": 6292.0
+    }
+   },
+   "fixed_rate": {
+    "get_user@2000": {
+     "rps": 1999.7,
+     "p50_ms": 0.6,
+     "p99_ms": 3.48,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 2
+     },
+     "cpu_cores": 0.285,
+     "peak_mem_mb": 70.6,
+     "rps_per_core": 7016.0
+    },
+    "create_order@1000": {
+     "rps": 999.7,
+     "p50_ms": 0.7,
+     "p99_ms": 2.52,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 2
+     },
+     "cpu_cores": 0.37,
+     "peak_mem_mb": 81.8,
+     "rps_per_core": 2702.0
+    }
+   },
+   "mem_after_load_mb": 80.2
+  },
+  "4cpu": {
+   "startup_s": 0.466,
+   "idle_mem_mb": 36.9,
+   "scenarios": {
+    "health": {
+     "rps": 270952.8,
+     "p50_ms": 0.23,
+     "p99_ms": 0.44,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 55
+     },
+     "cpu_cores": 3.632,
+     "peak_mem_mb": 46.3,
+     "rps_per_core": 74602.0
+    },
+    "get_user": {
+     "rps": 22598.1,
+     "p50_ms": 2.81,
+     "p99_ms": 3.46,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 62
+     },
+     "cpu_cores": 2.788,
+     "peak_mem_mb": 55.2,
+     "rps_per_core": 8105.0
+    },
+    "proxy": {
+     "rps": 101473.0,
+     "p50_ms": 0.6,
+     "p99_ms": 1.71,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 3.596,
+     "peak_mem_mb": 63.2,
+     "rps_per_core": 28218.0
+    },
+    "get_order": {
+     "rps": 21947.3,
+     "p50_ms": 2.89,
+     "p99_ms": 3.59,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 64
+     },
+     "cpu_cores": 3.05,
+     "peak_mem_mb": 69.9,
+     "rps_per_core": 7196.0
+    },
+    "list_orders": {
+     "rps": 12199.2,
+     "p50_ms": 5.21,
+     "p99_ms": 6.52,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 2.977,
+     "peak_mem_mb": 76.4,
+     "rps_per_core": 4098.0
+    },
+    "create_order": {
+     "rps": 8014.8,
+     "p50_ms": 7.94,
+     "p99_ms": 9.53,
+     "success": 1.0,
+     "errors": {
+      "aborted due to deadline": 63
+     },
+     "cpu_cores": 1.968,
+     "peak_mem_mb": 101.2,
+     "rps_per_core": 4073.0
+    }
+   },
+   "mem_after_load_mb": 102.2
+  }
  }
 }

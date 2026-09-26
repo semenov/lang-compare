@@ -1,4 +1,4 @@
-# lang-compare: one backend written in TypeScript, Go, Rust and Python
+# lang-compare: one backend written in TypeScript, Go, Rust and Python (+ SQLite variants)
 
 The same JSON backend (`orders-api`, spec in [SPEC.md](SPEC.md)), implemented several times:
 Postgres, a transparent proxy to an upstream service, and business logic that fans out
@@ -187,6 +187,48 @@ Rust here is still on sqlx 0.8 with the extra ping, but already with mimalloc.
 
 The first Rust build without mimalloc (musl's `malloc`) was **slower at 4 CPUs than at 1** (`/health` 142k → 95k):
 `results/load-rust-muslmalloc.json`.
+
+## 7. SQLite instead of Postgres (Node, Go, Rust)
+
+The same API, catalog and data (10k users, 100k orders); only the storage layer changed. All three use the same C SQLite through the most
+popular driver for their language, with the same settings: WAL, `synchronous=NORMAL`, `busy_timeout=5000`, one write connection
+(`BEGIN IMMEDIATE`) + a read pool. Each app creates and seeds a fresh file on start ([infra/sqlite.sql](infra/sqlite.sql)); in Docker the file lives on tmpfs.
+
+| | Node ([ts-sqlite/](ts-sqlite)) | Go ([go-sqlite/](go-sqlite)) | Rust ([rust-sqlite/](rust-sqlite)) |
+|---|---|---|---|
+| Driver | better-sqlite3 12 (synchronous, one connection per process) | mattn/go-sqlite3 1.14 (cgo) + database/sql | rusqlite 0.40 + deadpool-sqlite 0.14 (queries on tokio's blocking pool) |
+| Time to write | 2 min 13 s | **1 min 38 s** | 4 min 05 s |
+| Storage layer (non-blank lines) | **94** | 139 | 192 |
+| Docker image | 203 MB | 8.2 MB (static cgo on `scratch`) | **5.1 MB** |
+
+### Docker with CPU limits (rps)
+
+| Scenario | Node PG → SQLite | Go PG → SQLite | Rust PG → SQLite |
+|---|---|---|---|
+| **1 CPU** `GET /users/{id}` | 27.5k → **55.3k** | 36.2k → 51.6k | 31.2k → 12.6k |
+| **1 CPU** `GET /orders/{id}` | 17.3k → 28.9k | 22.8k → **31.5k** | 17.7k → 10.8k |
+| **1 CPU** `POST /orders` | 5.8k → **9.5k** | 7.6k → 9.4k | 7.9k → 6.1k |
+| **4 CPU** `GET /users/{id}` | 72.0k → **164.3k** | 81.2k → 119.7k | 57.8k → 22.6k |
+| **4 CPU** `GET /orders/{id}` | 46.4k → **94.5k** | 57.1k → 82.0k | 33.7k → 21.9k |
+| **4 CPU** `POST /orders` | 17.8k → 9.6k (p99 62 ms) | 21.0k → **12.3k** (p99 23 ms) | 18.3k → 8.0k (p99 10 ms) |
+| Memory idle / peak, 4 CPU ¹ | 171/258 → 188/330 MB | 5/31 → 37/132 MB | 9/34 → 37/101 MB |
+
+¹ In Docker the database file (~18 MB + WAL) lives on tmpfs and is charged to the app container. Native process RSS: Go 15/30–80 MB, Rust 9/23–50 MB, Node 114/253 MB per process.
+
+Natively (1 thread / 4 threads), `GET /orders/{id}`: Node 37.6k / 77.8k, Go 33.1k / 63.7k, Rust 27.9k / 40.8k; `POST /orders`: Node 9.3k / 9.5k, Go 8.0k / 12.6k, Rust 10.2k / 10.5k.
+
+- **For Node and Go, reads with SQLite are 1.4–2.3× faster** than with Postgres (no network round-trips). Node gains the most: calls into better-sqlite3 are very cheap,
+  and with 4 processes it's the read leader.
+- **Writes don't scale**: SQLite has a single writer, so `POST /orders` stays at ~9–12k regardless of core count, while Postgres at 4 CPU gives 18–21k.
+  Go handles the queue better (12.3k, p99 23 ms) than Node, whose 4 processes fight over the file lock (9.6k, p99 62–142 ms).
+- **Rust with the typical setup (deadpool-sqlite / `spawn_blocking`) is the weakest here**, especially under a CPU quota: every query is a hop
+  between the async thread and the blocking pool. On top of that, two defaults nearly killed it before the fix:
+  - tokio's blocking pool isn't bounded by `TOKIO_WORKER_THREADS`, so 20 readers = 20 threads contending (under a 1-CPU quota `get_order` fell to **1.7k**);
+  - the bundled SQLite keeps global memory statistics behind a mutex (`SQLITE_DEFAULT_MEMSTATUS=1`), which better-sqlite3 turns off.
+  After the fix (readers = worker count, `MEMSTATUS=0` in [rust-sqlite/.cargo/config.toml](rust-sqlite/.cargo/config.toml)) natively it's on par with Go/Node at 1 thread,
+  but in Docker it's still 3–5× behind Go on reads. Running queries directly on the async threads would most likely close the gap, but that's already an atypical setup.
+- **Conclusion:** SQLite makes sense for a single-instance service with read-heavy traffic (and it simplifies operations a lot). If you need several app instances,
+  many concurrent writes or HA, use Postgres. And in this setup Node + better-sqlite3 turned out to be one of the best combinations for reads.
 
 ## Conclusions
 

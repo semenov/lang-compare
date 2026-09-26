@@ -1,0 +1,20 @@
+[package]
+name = "orders-api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+deadpool-sqlite = { version = "0.14", features = ["bundled"] }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bytes = "1"
+mimalloc = { version = "0.1", default-features = false }
+futures = { version = "0.3", default-features = false, features = ["std", "async-await"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 16
+strip = true

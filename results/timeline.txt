@@ -11,3 +11,11 @@ py_start 1790252077
 py_code_written 1790252124
 py_test_start 1790253127
 py_end 1790253154
+sqlite_spec_start 1790391965
+sqlite_spec_end 1790391981
+ts_sqlite_start 1790391981
+ts_sqlite_end 1790392114
+go_sqlite_start 1790392114
+go_sqlite_end 1790392212
+rust_sqlite_start 1790392212
+rust_sqlite_end 1790392457

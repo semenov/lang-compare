@@ -24,9 +24,9 @@ SCENARIOS = [  # name, method, url-regex (path), body
 ]
 FIXED_RATE = [("get_user", 2000), ("create_order", 1000)]  # (scenario, rps) at equal load
 
-MULTIPROC = {"ts", "ts-bun", "py"}  # scale by processes (node/bun cluster, uvicorn --workers)
+MULTIPROC = {"ts", "ts-bun", "ts-sqlite", "py"}  # scale by processes (node/bun cluster, uvicorn --workers)
 OUT = os.environ.get("OUT", "results/load.json")
-ALL_APPS = ["ts", "ts-bun", "go", "go-fasthttp", "rust", "py"]
+ALL_APPS = ["ts", "ts-bun", "go", "go-fasthttp", "rust", "py", "ts-sqlite", "go-sqlite", "rust-sqlite"]
 
 CONFIGS = [  # name, APP_CPUS, WORKERS(ts only), DB_POOL_SIZE
     ("1cpu", 1, 1, 20),

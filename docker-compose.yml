@@ -49,6 +49,36 @@ services:
     mem_limit: 1g
     ports: ["18080:8080"]
     depends_on: { postgres: { condition: service_healthy }, catalog: { condition: service_started } }
+  app-ts-sqlite:
+    build: { context: ., dockerfile: ts-sqlite/Dockerfile }
+    image: lc-ts-sqlite
+    profiles: [ts-sqlite]
+    environment: *appenv
+    tmpfs: ["/data:mode=1777"]
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { catalog: { condition: service_started } }
+  app-go-sqlite:
+    build: { context: ., dockerfile: go-sqlite/Dockerfile }
+    image: lc-go-sqlite
+    profiles: [go-sqlite]
+    environment: *appenv
+    tmpfs: ["/data:mode=1777"]
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { catalog: { condition: service_started } }
+  app-rust-sqlite:
+    build: { context: ., dockerfile: rust-sqlite/Dockerfile }
+    image: lc-rust-sqlite
+    profiles: [rust-sqlite]
+    environment: *appenv
+    tmpfs: ["/data:mode=1777"]
+    cpus: ${APP_CPUS:-1}
+    mem_limit: 1g
+    ports: ["18080:8080"]
+    depends_on: { catalog: { condition: service_started } }
   app-py:
     build: ./py
     image: lc-py

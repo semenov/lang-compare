@@ -17,6 +17,7 @@ CONNS = 64
 WARMUP, DURATION = 5, 15
 NODE = os.path.expanduser("~/.nvm/versions/node/v26.10.0/bin/node")
 BUN = os.path.expanduser("~/.bun/bin/bun")
+SQLITE_PATH = "/tmp/lc-sqlite.db"
 ORDER_BODY = '{"user_id":42,"items":[{"sku":"SKU-17","qty":2},{"sku":"SKU-4242","qty":1}]}'
 
 SCENARIOS = [
@@ -37,6 +38,9 @@ VARIANTS = {
     "go":          (["/tmp/lc-go"],                        lambda n: {"GOMAXPROCS": str(n)}),
     "go-fasthttp": (["/tmp/lc-go-fasthttp"],               lambda n: {"GOMAXPROCS": str(n)}),
     "rust":        (["rust/target/release/orders-api"],    lambda n: {"TOKIO_WORKER_THREADS": str(n)}),
+    "ts-sqlite":   ([NODE, "ts-sqlite/dist/main.js"],      lambda n: {"WORKERS": str(n)}),
+    "go-sqlite":   (["/tmp/lc-go-sqlite"],                 lambda n: {"GOMAXPROCS": str(n), "DB_POOL_SIZE": "20"}),
+    "rust-sqlite": (["rust-sqlite/target/release/orders-api"], lambda n: {"TOKIO_WORKER_THREADS": str(n), "DB_POOL_SIZE": "20"}),
     "rust-sqlx08": (["/tmp/lc-rust-sqlx08"],               lambda n: {"TOKIO_WORKER_THREADS": str(n)}),
 }
 THREADS = [1, 4]
@@ -121,8 +125,11 @@ def main():
         for n in THREADS:
             print(f"\n### {v} threads={n}", flush=True)
             subprocess.run(["bench/native/infra.sh", "reset-db"], check=True)
+            for suffix in ("", "-wal", "-shm"):  # SQLite variants create and seed a fresh file on start
+                if os.path.exists(SQLITE_PATH + suffix):
+                    os.remove(SQLITE_PATH + suffix)
             env = dict(os.environ, PORT=str(PORT), DATABASE_URL="postgres://app@localhost:15432/app",
-                       CATALOG_URL="http://127.0.0.1:9000", **env_for(n))
+                       CATALOG_URL="http://127.0.0.1:9000", SQLITE_PATH=SQLITE_PATH, **env_for(n))
             if subprocess.run(["lsof", "-ti", f"tcp:{PORT}", "-sTCP:LISTEN"], capture_output=True).stdout:
                 sys.exit(f"port {PORT} is already in use; refusing to benchmark a stray process")
             t0 = time.time()

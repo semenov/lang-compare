@@ -1,0 +1,21 @@
+
+### rust-sqlite threads=1
+startup 0.415s idle rss 8.5 MB
+  health        {"rps": 141326.5, "p50_ms": 0.46, "p99_ms": 0.56, "success": 1.0, "cpu_cores": 0.972, "peak_rss_mb": 11.1, "rps_per_core": 145398}
+  get_user      {"rps": 36069.0, "p50_ms": 1.71, "p99_ms": 2.52, "success": 1.0, "cpu_cores": 1.086, "peak_rss_mb": 13.6, "rps_per_core": 33213}
+  proxy         {"rps": 50280.1, "p50_ms": 1.25, "p99_ms": 1.54, "success": 1.0, "cpu_cores": 0.982, "peak_rss_mb": 17.1, "rps_per_core": 51202}
+  get_order     {"rps": 27862.1, "p50_ms": 2.25, "p99_ms": 3.18, "success": 1.0, "cpu_cores": 1.104, "peak_rss_mb": 19.5, "rps_per_core": 25237}
+  list_orders   {"rps": 15326.4, "p50_ms": 4.1, "p99_ms": 5.58, "success": 1.0, "cpu_cores": 1.072, "peak_rss_mb": 20.3, "rps_per_core": 14297}
+  create_order  {"rps": 10243.1, "p50_ms": 5.83, "p99_ms": 7.84, "success": 1.0, "cpu_cores": 1.494, "peak_rss_mb": 22.6, "rps_per_core": 6856}
+  get_user@2000   {"rps": 1999.7, "p50_ms": 0.23, "p99_ms": 3.16, "success": 1.0, "cpu_cores": 0.19, "peak_rss_mb": 22.6, "rps_per_core": 10525}
+  create_order@1000   {"rps": 1000.0, "p50_ms": 0.43, "p99_ms": 8.01, "success": 1.0, "cpu_cores": 0.338, "peak_rss_mb": 23.2, "rps_per_core": 2959}
+
+### rust-sqlite threads=4
+startup 0.413s idle rss 8.7 MB
+  health        {"rps": 137204.8, "p50_ms": 0.44, "p99_ms": 0.9, "success": 1.0, "cpu_cores": 2.296, "peak_rss_mb": 13.2, "rps_per_core": 59758}
+  get_user      {"rps": 44806.0, "p50_ms": 1.4, "p99_ms": 2.09, "success": 1.0, "cpu_cores": 5.259, "peak_rss_mb": 23.4, "rps_per_core": 8520}
+  proxy         {"rps": 55406.0, "p50_ms": 0.9, "p99_ms": 3.82, "success": 1.0, "cpu_cores": 2.475, "peak_rss_mb": 30.7, "rps_per_core": 22386}
+  get_order     {"rps": 40785.5, "p50_ms": 1.48, "p99_ms": 2.98, "success": 1.0, "cpu_cores": 4.658, "peak_rss_mb": 39.7, "rps_per_core": 8756}
+  list_orders   {"rps": 24829.9, "p50_ms": 2.52, "p99_ms": 3.7, "success": 1.0, "cpu_cores": 4.728, "peak_rss_mb": 44.1, "rps_per_core": 5252}
+  create_order  {"rps": 10488.7, "p50_ms": 5.73, "p99_ms": 7.72, "success": 1.0, "cpu_cores": 2.206, "peak_rss_mb": 50.1, "rps_per_core": 4755}
+EXIT 0
