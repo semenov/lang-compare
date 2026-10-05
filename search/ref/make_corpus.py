@@ -14,8 +14,16 @@ def main():
     limit = int(sys.argv[sys.argv.index("--limit") + 1]) if "--limit" in sys.argv else None
     n = 0
     with gzip.open(src, "rt", encoding="utf-8") as f, open(dst, "w", encoding="utf-8") as out:
-        for line in f:
-            d = json.loads(line)
+        lines = iter(f)
+        while True:
+            try:
+                line = next(lines)
+                d = json.loads(line)
+            except StopIteration:
+                break
+            except (EOFError, json.JSONDecodeError):  # truncated download: stop at the last complete line
+                print("truncated input, stopping", file=sys.stderr)
+                break
             if "index" in d or str(d.get("namespace")) != "0" or not d.get("text"):
                 continue
             out.write(json.dumps({"id": int(d["page_id"]), "title": d["title"], "text": d["text"]},
