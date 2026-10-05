@@ -1,0 +1,14 @@
+{
+  "name": "go-1",
+  "lang": "go",
+  "n": 1,
+  "model": "claude-opus-5-5",
+  "workspace": "/private/tmp/mini-redis-runs/go-1",
+  "port": 6410,
+  "evict_port": 6510,
+  "prompt": "Implement the server described in SPEC.md (in this directory) in Go.\n\n- Write all code in this directory; do not read or write anything outside it\n  (except the toolchain, package registries and caches).\n- Toolchain: Go 1.27.1. Network access for dependencies is available.\n- Build in release mode: `go build -o mini-redis .`. The binary must be `./mini-redis`.\n- Done means: the release binary is running with `PORT=6410` and\n  `python3 bench/conformance.py --port 6410 --evict-port 6510 --bin ./mini-redis`\n  reports 0 failed and 0 skipped. Use exactly these ports (other runs use other ports).\n- Performance and memory efficiency matter: this server will be benchmarked\n  (throughput, p99 latency, RSS per million keys, multi-core scaling).\n- Stop any server processes you started before finishing.\n- When done, reply with a short summary of the design.\n",
+  "started": 1791177169.5602088,
+  "pid": 32419,
+  "finished": 1791178044.6354282,
+  "exit_code": 0
+}

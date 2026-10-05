@@ -1,0 +1,19 @@
+[package]
+name = "mini-redis"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "sync", "macros", "time"] }
+parking_lot = "0.12"
+ahash = "0.8"
+mimalloc = { version = "0.1", default-features = false, features = ["v2"] }
+bytes = "1"
+itoa = "1"
+libc = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+debug = false
