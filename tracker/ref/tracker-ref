@@ -1,0 +1,4 @@
+#!/bin/sh
+# Tracker reference implementation launcher. Configured via env vars only (see SPEC.md).
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec "$DIR/.venv/bin/python" -u "$DIR/app.py"

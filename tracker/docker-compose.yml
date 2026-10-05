@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: tracker-postgres
+    environment:
+      POSTGRES_USER: tracker
+      POSTGRES_PASSWORD: tracker
+      POSTGRES_DB: tracker
+    ports:
+      - "55432:5432"
+    command: ["postgres", "-c", "max_connections=500", "-c", "shared_buffers=512MB"]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "tracker"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
