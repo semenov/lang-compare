@@ -1,0 +1,70 @@
+{
+  "corpus": "/Users/semenov/Dev/lang-compare/search/data/simplewiki.jsonl",
+  "started": "2026-10-05 09:11",
+  "engines": {
+    "go-1": {
+      "index": {
+        "wall": 1.33,
+        "cpu": 12.379999999999999,
+        "peak_rss_mb": 772,
+        "size_mb": 357
+      },
+      "startup": {
+        "seconds": 0.019,
+        "rss_mb": 11
+      },
+      "c1": {
+        "rps": 3322,
+        "p50_ms": 0.154,
+        "p99_ms": 2.517,
+        "p999_ms": 4.259,
+        "success": 1.0,
+        "non200": 0,
+        "cpu_cores": 2.62,
+        "rss_mb": 192
+      },
+      "c32": {
+        "rps": 5214,
+        "p50_ms": 1.163,
+        "p99_ms": 77.859,
+        "p999_ms": 154.519,
+        "success": 1.0,
+        "non200": 0,
+        "cpu_cores": 7.23,
+        "rss_mb": 197
+      }
+    },
+    "rust-1": {
+      "index": {
+        "wall": 1.23,
+        "cpu": 13.43,
+        "peak_rss_mb": 464,
+        "size_mb": 404
+      },
+      "startup": {
+        "seconds": 0.17,
+        "rss_mb": 40
+      },
+      "c1": {
+        "rps": 2009,
+        "p50_ms": 0.139,
+        "p99_ms": 8.736,
+        "p999_ms": 10.857,
+        "success": 1.0,
+        "non200": 0,
+        "cpu_cores": 0.87,
+        "rss_mb": 219
+      },
+      "c32": {
+        "rps": 12512,
+        "p50_ms": 1.426,
+        "p99_ms": 23.305,
+        "p999_ms": 60.085,
+        "success": 1.0,
+        "non200": 0,
+        "cpu_cores": 10.05,
+        "rss_mb": 226
+      }
+    }
+  }
+}

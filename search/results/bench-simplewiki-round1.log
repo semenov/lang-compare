@@ -1,0 +1,12 @@
+== go-1
+  index: 1.3s wall, 12.4s cpu (9.3 cores), peak RSS 772 MB, index 357 MB
+  startup: 0.019s, RSS 11 MB
+  c=1      3322 rps  p50 0.15  p99 2.52  p99.9 4.26 ms  cpu 2.62  RSS 192 MB  non-200 0
+  c=32     5214 rps  p50 1.16  p99 77.86  p99.9 154.52 ms  cpu 7.23  RSS 197 MB  non-200 0
+== rust-1
+  index: 1.2s wall, 13.4s cpu (10.9 cores), peak RSS 464 MB, index 404 MB
+  startup: 0.17s, RSS 40 MB
+  c=1      2009 rps  p50 0.14  p99 8.74  p99.9 10.86 ms  cpu 0.87  RSS 219 MB  non-200 0
+  c=32    12512 rps  p50 1.43  p99 23.30  p99.9 60.09 ms  cpu 10.05  RSS 226 MB  non-200 0
+consistency go-1 vs rust-1: total equal 296/296, top-10 ids equal 296/296
+wrote results/bench-simplewiki-round1.json
