@@ -50,4 +50,36 @@ Independent check after copying: clean rebuild + 5 conformance runs each → 5/5
 (The single flaky failure, in `expire_ttl_persist`, was a bug in the test: `PEXPIRE 5500` → `TTL` gives 5 if 1 ms passes.
 Fixed with `PEXPIRE 5700`.)
 
-Benchmarks (throughput, p99, RSS per 1M keys, scaling across THREADS): not run yet.
+### Benchmarks, round 1 ([bench/load.py](bench/load.py), raw: [results/bench-round1.log](results/bench-round1.log))
+
+Native macOS, M3 Max (10P+4E). memtier_benchmark 2.5.1 runs on the same machine with 8 threads × 25 connections,
+GET:SET = 10:1, 1M keys × 100 B, 15 s per scenario. Real `redis-server` 8.10 (libc malloc, `io-threads`) is the reference.
+
+**Memory**: 5M keys × 32 B values:
+
+| | Go | Rust | Redis 8.10 |
+|---|---|---|---|
+| RSS | 462 MB | **437 MB** | 546 MB |
+| Bytes/key | 95.8 | **91.0** | 112.9 |
+| RSS after `FLUSHALL` | **79 MB** (returned to the OS) | 437 MB (mimalloc keeps it) | 486 MB |
+
+**One core (`THREADS=1`)**: here the server is the bottleneck (CPU ≈ 1.0), so this is the cleanest comparison:
+
+| | Go | Rust | Redis |
+|---|---|---|---|
+| No pipelining, ops/s | 164k | **176k** | 175k |
+| Pipeline 16, ops/s | 1.85M | **2.16M** | 1.41M |
+| Fixed 100k ops/s: p50 / p99 / p99.9, ms | 1.20 / 1.70 / 3.39 | 1.13 / 1.54 / 2.22 | 1.10 / 1.78 / 3.97 |
+| CPU at 100k ops/s | 0.64 cores | **0.57** | 0.57 |
+
+**Multiple cores (`THREADS=2/4`): not measured, because the client is the limit.** Every server, including Redis,
+hits the same ceiling of ~180k ops/s without pipelining and ~1.9M with pipeline 16. Extra threads only burn CPU
+(efficiency drops 2–3×). On one machine with 14 cores, the load generator can't outpace the server. It needs either a
+separate client machine or a much cheaper load pattern (deep pipelining).
+
+Takeaways from round 1:
+- Rust is **~7% faster without pipelining and ~17% faster with it** per core, and uses about 10% less CPU at the same load.
+- Memory is **almost equal (−5% for Rust)**, but only because the Go agent moved the data off the GC heap.
+  In return, Go hands memory back to the OS after deletes, and Rust with mimalloc doesn't.
+- No GC tail-latency effect is visible: Go's p99.9 is within the noise of Rust's and Redis's. Again, that's because the GC has almost nothing to scan.
+- Both agent-written servers beat real Redis on pipelined load (Redis is single-threaded, built with libc malloc, and does more bookkeeping).

@@ -1,0 +1,43 @@
+== go-1
+  memory: {'keys': 5000000, 'rss_idle_mb': 5.5, 'rss_mb': 462, 'bytes_per_key': 95.8, 'rss_after_flush_mb': 79}
+  THREADS=1
+    no-pipe       164501 ops/s  p50 1.207  p99 1.663  p99.9 1.983  max 5.5 ms  cpu 1.0  ops/cpu-s 164831  rss 166 MB
+    pipe16       1845085 ops/s  p50 1.711  p99 2.415  p99.9 2.783  max 5.8 ms  cpu 1.0  ops/cpu-s 1852495  rss 167 MB
+    100k/s         99885 ops/s  p50 1.199  p99 1.695  p99.9 3.391  max 5.2 ms  cpu 0.64  ops/cpu-s 156233  rss 167 MB
+  THREADS=2
+    no-pipe       180138 ops/s  p50 1.071  p99 2.607  p99.9 4.255  max 7.6 ms  cpu 1.91  ops/cpu-s 94214  rss 166 MB
+    pipe16       1926253 ops/s  p50 1.263  p99 5.951  p99.9 9.151  max 49.7 ms  cpu 1.57  ops/cpu-s 1226392  rss 167 MB
+    100k/s         99868 ops/s  p50 1.023  p99 1.527  p99.9 2.207  max 6.0 ms  cpu 1.07  ops/cpu-s 93160  rss 167 MB
+  THREADS=4
+    no-pipe       154438 ops/s  p50 1.223  p99 2.719  p99.9 4.127  max 43.3 ms  cpu 2.89  ops/cpu-s 53402  rss 167 MB
+    pipe16       1805402 ops/s  p50 1.311  p99 5.887  p99.9 30.207  max 80.4 ms  cpu 2.47  ops/cpu-s 729947  rss 168 MB
+    100k/s         99855 ops/s  p50 1.223  p99 1.847  p99.9 2.751  max 5.9 ms  cpu 1.98  ops/cpu-s 50398  rss 168 MB
+== rust-1
+  memory: {'keys': 5000000, 'rss_idle_mb': 3.1, 'rss_mb': 437, 'bytes_per_key': 91.0, 'rss_after_flush_mb': 437}
+  THREADS=1
+    no-pipe       175861 ops/s  p50 1.159  p99 1.447  p99.9 1.927  max 5.4 ms  cpu 0.99  ops/cpu-s 177637  rss 159 MB
+    pipe16       2162166 ops/s  p50 1.543  p99 1.847  p99.9 4.415  max 5.7 ms  cpu 0.99  ops/cpu-s 2173759  rss 159 MB
+    100k/s         99888 ops/s  p50 1.127  p99 1.535  p99.9 2.223  max 5.9 ms  cpu 0.57  ops/cpu-s 173819  rss 159 MB
+  THREADS=2
+    no-pipe       181939 ops/s  p50 1.063  p99 2.463  p99.9 3.871  max 49.7 ms  cpu 1.87  ops/cpu-s 97502  rss 159 MB
+    pipe16       1945980 ops/s  p50 1.271  p99 5.503  p99.9 11.071  max 79.9 ms  cpu 1.49  ops/cpu-s 1304859  rss 160 MB
+    100k/s         99863 ops/s  p50 1.007  p99 1.583  p99.9 2.911  max 5.7 ms  cpu 1.02  ops/cpu-s 97841  rss 160 MB
+  THREADS=4
+    no-pipe       158710 ops/s  p50 1.199  p99 2.719  p99.9 4.447  max 48.9 ms  cpu 2.71  ops/cpu-s 58622  rss 160 MB
+    pipe16       1866482 ops/s  p50 1.319  p99 5.727  p99.9 16.895  max 48.1 ms  cpu 2.37  ops/cpu-s 788877  rss 160 MB
+    100k/s         99890 ops/s  p50 1.191  p99 1.799  p99.9 2.511  max 5.3 ms  cpu 1.78  ops/cpu-s 56055  rss 160 MB
+== redis
+  memory: {'keys': 5000000, 'rss_idle_mb': 7.2, 'rss_mb': 546, 'bytes_per_key': 112.9, 'rss_after_flush_mb': 486}
+  THREADS=1
+    no-pipe       175008 ops/s  p50 1.127  p99 1.767  p99.9 2.023  max 5.0 ms  cpu 1.0  ops/cpu-s 175593  rss 185 MB
+    pipe16       1414712 ops/s  p50 2.223  p99 5.343  p99.9 7.391  max 9.7 ms  cpu 0.99  ops/cpu-s 1424207  rss 185 MB
+    100k/s         99872 ops/s  p50 1.095  p99 1.783  p99.9 3.967  max 5.3 ms  cpu 0.57  ops/cpu-s 174805  rss 185 MB
+  THREADS=2
+    no-pipe       162979 ops/s  p50 1.199  p99 2.463  p99.9 3.023  max 4.6 ms  cpu 1.12  ops/cpu-s 145690  rss 185 MB
+    pipe16       1458170 ops/s  p50 1.903  p99 3.935  p99.9 4.831  max 6.1 ms  cpu 1.41  ops/cpu-s 1034652  rss 186 MB
+    100k/s         99853 ops/s  p50 1.055  p99 2.367  p99.9 3.919  max 5.7 ms  cpu 0.67  ops/cpu-s 148003  rss 186 MB
+  THREADS=4
+    no-pipe       145582 ops/s  p50 1.375  p99 1.615  p99.9 1.959  max 5.3 ms  cpu 2.92  ops/cpu-s 49857  rss 185 MB
+    pipe16       1068009 ops/s  p50 2.095  p99 9.215  p99.9 55.039  max 147.5 ms  cpu 1.77  ops/cpu-s 601808  rss 187 MB
+    100k/s         94706 ops/s  p50 1.423  p99 4.319  p99.9 11.071  max 33.5 ms  cpu 1.4  ops/cpu-s 67776  rss 187 MB
+wrote results/bench-round1.json
