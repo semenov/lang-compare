@@ -1,0 +1,28 @@
+== go-1
+  THREADS=1
+    no-pipe     321569 ops/s  p50 0.623  p99 1.255  p99.9 1.647  max 603979.8 ms  cpu 0.96 (sys 72%)  ops/cpu-s 321530  mem 166 MB
+    pipe16     2034637 ops/s  p50 1.543  p99 2.927  p99.9 3.807  max 7.4 ms  cpu 0.96 (sys 44%)  ops/cpu-s 2034601  mem 167 MB
+    100k/s       99937 ops/s  p50 0.487  p99 2.255  p99.9 2.879  max 3.7 ms  cpu 0.43 (sys 80%)  ops/cpu-s 224729  mem 170 MB
+  THREADS=4
+    no-pipe     763011 ops/s  p50 0.231  p99 0.783  p99.9 1.159  max 40.7 ms  cpu 3.81 (sys 77%)  ops/cpu-s 193137  mem 168 MB
+    pipe16     8434347 ops/s  p50 0.327  p99 1.127  p99.9 1.431  max 6.5 ms  cpu 3.85 (sys 46%)  ops/cpu-s 2115110  mem 170 MB
+    100k/s       99986 ops/s  p50 0.191  p99 1.391  p99.9 2.655  max 6.0 ms  cpu 0.72 (sys 73%)  ops/cpu-s 133396  mem 170 MB
+== rust-1
+  THREADS=1
+    no-pipe     411225 ops/s  p50 0.479  p99 0.855  p99.9 1.047  max 56.8 ms  cpu 0.96 (sys 85%)  ops/cpu-s 411257  mem 160 MB
+    pipe16     3449134 ops/s  p50 0.911  p99 1.495  p99.9 1.823  max 4.7 ms  cpu 0.96 (sys 67%)  ops/cpu-s 3449077  mem 160 MB
+    100k/s       99886 ops/s  p50 0.319  p99 1.775  p99.9 2.271  max 3.0 ms  cpu 0.35 (sys 86%)  ops/cpu-s 279243  mem 160 MB
+  THREADS=4
+    no-pipe     904138 ops/s  p50 0.215  p99 0.471  p99.9 0.591  max 30.0 ms  cpu 3.66 (sys 83%)  ops/cpu-s 238427  mem 166 MB
+    pipe16     9337671 ops/s  p50 0.319  p99 0.735  p99.9 0.935  max 5.6 ms  cpu 3.7 (sys 50%)  ops/cpu-s 2432352  mem 168 MB
+    100k/s       99980 ops/s  p50 0.223  p99 1.247  p99.9 2.079  max 6.5 ms  cpu 0.62 (sys 80%)  ops/cpu-s 154390  mem 165 MB
+== redis
+  THREADS=1
+    no-pipe     290942 ops/s  p50 0.655  p99 1.279  p99.9 1.927  max 4.4 ms  cpu 0.96 (sys 85%)  ops/cpu-s 290929  mem 167 MB
+    pipe16     2043387 ops/s  p50 1.487  p99 2.943  p99.9 3.583  max 6.3 ms  cpu 0.96 (sys 51%)  ops/cpu-s 2043282  mem 167 MB
+    100k/s       99767 ops/s  p50 0.439  p99 1.943  p99.9 2.703  max 5.2 ms  cpu 0.39 (sys 84%)  ops/cpu-s 249259  mem 168 MB
+  THREADS=4
+    no-pipe     470878 ops/s  p50 0.423  p99 0.735  p99.9 0.871  max 4.5 ms  cpu 3.24 (sys 80%)  ops/cpu-s 140381  mem 169 MB
+    pipe16     4273313 ops/s  p50 0.743  p99 1.039  p99.9 1.255  max 4.9 ms  cpu 3.15 (sys 40%)  ops/cpu-s 1308819  mem 170 MB
+    100k/s       99994 ops/s  p50 0.287  p99 0.935  p99.9 1.479  max 4.7 ms  cpu 0.8 (sys 76%)  ops/cpu-s 120882  mem 171 MB
+wrote results/docker-round1.json

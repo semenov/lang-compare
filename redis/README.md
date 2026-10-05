@@ -77,8 +77,36 @@ hits the same ceiling of ~180k ops/s without pipelining and ~1.9M with pipeline 
 (efficiency drops 2–3×). On one machine with 14 cores, the load generator can't outpace the server. It needs either a
 separate client machine or a much cheaper load pattern (deep pipelining).
 
+Why macOS can't measure scaling: about 80–90% of server and client CPU is kernel time (socket syscalls over loopback),
+and the macOS TCP stack caps at ~150–180k round trips/s **for the whole machine**. Two independent
+server+client pairs running at once split it (76k + 76k), while the machine stays ~50% idle.
+
+### Benchmarks in Docker (Linux VM): round 1 ([bench/docker_load.py](bench/docker_load.py), raw: [results/docker-round1.log](results/docker-round1.log))
+
+Docker Desktop 27.5 (14 vCPU). Server and memtier share one network namespace (Linux loopback inside the VM);
+the server is pinned to cpuset 0 or 0–3, memtier to 4–13 (8 threads × 25 connections). Same workload as above.
+CPU comes from the container's cgroup counters.
+
+| ops/s | Go | Rust | Redis 8 (io-threads) |
+|---|---|---|---|
+| **THREADS=1**, no pipelining | 322k | **411k** (+28%) | 291k |
+| **THREADS=1**, pipeline 16 | 2.03M | **3.45M** (+70%) | 2.04M |
+| **THREADS=4**, no pipelining | 763k | **904k** (+18%) | 471k |
+| **THREADS=4**, pipeline 16 | 8.43M | **9.34M** (+11%) | 4.27M |
+| Scaling 1→4, no pipelining / pipeline 16 | 2.4× / 4.1× | 2.2× / 2.7×* | 1.6× / 2.1× |
+
+| latency, ms | Go | Rust | Redis |
+|---|---|---|---|
+| THREADS=4, no pipelining: p50 / p99 / p99.9 | 0.23 / 0.78 / 1.16 | **0.22 / 0.47 / 0.59** | 0.42 / 0.74 / 0.87 |
+| THREADS=4, fixed 100k/s: p99 / p99.9 | 1.39 / 2.66 | 1.25 / 2.08 | **0.94 / 1.48** |
+| CPU at 100k/s, THREADS=4 (cores) | 0.72 | **0.62** | 0.80 |
+
+\* Rust at THREADS=4 with pipelining (9.3M ops/s) is probably limited by memtier on its 10 cores, so its scaling is understated.
+(memtier reported a "max 603979 ms" for Go THREADS=1 without pipelining, which is impossible in a 15 s run; it's a memtier artifact and is excluded.)
+
 Takeaways from round 1:
-- Rust is **~7% faster without pipelining and ~17% faster with it** per core, and uses about 10% less CPU at the same load.
+- macOS: Rust is ~7% faster per core without pipelining and ~17% faster with it. **On Linux the gap is bigger: +28% and +70% on one core**,
+  +11–18% on 4 cores, and ~15% less CPU at the same load.
 - Memory is **almost equal (−5% for Rust)**, but only because the Go agent moved the data off the GC heap.
   In return, Go hands memory back to the OS after deletes, and Rust with mimalloc doesn't.
 - No GC tail-latency effect is visible: Go's p99.9 is within the noise of Rust's and Redis's. Again, that's because the GC has almost nothing to scan.
