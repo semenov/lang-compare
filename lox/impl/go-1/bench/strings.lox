@@ -1,0 +1,11 @@
+var start = clock();
+var s = "";
+var total = 0;
+for (var i = 0; i < 200000; i = i + 1) {
+  var t = "ab" + "cd";
+  if (t == "abcd") total = total + 1;
+  s = s + "x";
+  if (s == "xxxxxxxxxxxxxxxxxxxx") s = "";
+}
+print total;
+print clock() - start;

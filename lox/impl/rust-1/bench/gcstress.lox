@@ -1,0 +1,18 @@
+fun makeAdder(n) { fun add(x) { return x + n; } return add; }
+class Node { init(v, next) { this.v = v; this.next = next; } sum() { if (this.next == nil) return this.v; return this.v + this.next.sum(); } }
+class Sub < Node { init(v, next) { super.init(v * 2, next); this.tag = "s" + "ub"; } sum() { return super.sum() + 1; } }
+var list = nil;
+for (var i = 0; i < 200; i = i + 1) {
+  var adder = makeAdder(i);
+  if (i - (i / 3) * 3 == 0) list = Sub(adder(1), list); else list = Node(adder(i), list);
+  var s = "x" + "y" + "z";
+}
+print list.sum();
+var m = list.sum;
+print m();
+fun counter() { var c = 0; fun inc() { c = c + 1; return c; } return inc; }
+var cs = counter(); cs(); cs();
+print cs();
+var str = "";
+for (var i = 0; i < 50; i = i + 1) str = str + "ab";
+print str;

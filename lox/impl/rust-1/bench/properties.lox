@@ -1,0 +1,18 @@
+class Foo {
+  init() { this.field0 = 1; this.field1 = 1; this.field2 = 1; this.field3 = 1; this.field4 = 1;
+    this.field5 = 1; this.field6 = 1; this.field7 = 1; this.field8 = 1; this.field9 = 1; }
+  method0() { return this.field0; } method1() { return this.field1; } method2() { return this.field2; }
+  method3() { return this.field3; } method4() { return this.field4; } method5() { return this.field5; }
+  method6() { return this.field6; } method7() { return this.field7; } method8() { return this.field8; }
+  method9() { return this.field9; }
+}
+var foo = Foo();
+var start = clock();
+var i = 0;
+while (i < 1000000) {
+  foo.method0(); foo.method1(); foo.method2(); foo.method3(); foo.method4();
+  foo.method5(); foo.method6(); foo.method7(); foo.method8(); foo.method9();
+  foo.field0 = foo.field1 + foo.field2; foo.field3 = foo.field4 + foo.field5;
+  i = i + 1;
+}
+print clock() - start;

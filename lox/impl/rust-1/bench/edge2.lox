@@ -1,0 +1,9 @@
+var a = 1; var b = 2;
+{ var x = 3; var y = 4; x == y; print x; print y; x; y; nil; 1 == 2; !x; print x + y; }
+fun f(p, q) { p == q; p; q; return p + q; }
+print f(1, 2);
+var z = (a or b) == 3; print z;
+(a or b) == 3;
+print "ok";
+for (var i = 0; i < 3; i = i + 1) { i == 1; i; }
+print a == b;

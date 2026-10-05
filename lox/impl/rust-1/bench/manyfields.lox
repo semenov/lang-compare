@@ -1,0 +1,11 @@
+class Bag {}
+var b = Bag();
+b.f1 = 1; b.f2 = 2; b.f3 = 3; b.f4 = 4; b.f5 = 5; b.f6 = 6; b.f7 = 7; b.f8 = 8; b.f9 = 9; b.f10 = 10;
+b.f11 = 1; b.f12 = 2; b.f13 = 3; b.f14 = 4; b.f15 = 5; b.f16 = 6; b.f17 = 7; b.f18 = 8; b.f19 = 9; b.f20 = 10;
+b.f21 = 1; b.f22 = 2; b.f23 = 3; b.f24 = 4; b.f25 = 5; b.f26 = 6; b.f27 = 7; b.f28 = 8; b.f29 = 9; b.f30 = 10;
+b.f31 = 1; b.f32 = 2; b.f33 = 3; b.f34 = 4; b.f35 = 5;
+print b.f1 + b.f35 + b.f20;
+var c = Bag(); c.x = 1; c.f35 = 7; print c.f35 + c.x;
+var i = 0; var s = 0;
+while (i < 100000) { var t = Bag(); t.a = i; t.b = i; s = s + t.a + t.b; i = i + 1; }
+print s;

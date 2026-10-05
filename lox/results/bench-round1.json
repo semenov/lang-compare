@@ -1,0 +1,179 @@
+{
+  "started": "2026-10-05 08:43",
+  "runs": 3,
+  "programs": {
+    "binary_trees.lox": {
+      "clox": {
+        "wall": 1.07,
+        "rss_mb": 23.6,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.78,
+        "rss_mb": 24.9,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.49,
+        "rss_mb": 11.5,
+        "ok": true
+      }
+    },
+    "equality.lox": {
+      "clox": {
+        "wall": 2.52,
+        "rss_mb": 1.8,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 3.41,
+        "rss_mb": 4.7,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.14,
+        "rss_mb": 2.6,
+        "ok": true
+      }
+    },
+    "fib.lox": {
+      "clox": {
+        "wall": 0.8,
+        "rss_mb": 1.8,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.62,
+        "rss_mb": 4.6,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.43,
+        "rss_mb": 2.6,
+        "ok": true
+      }
+    },
+    "instantiation.lox": {
+      "clox": {
+        "wall": 0.43,
+        "rss_mb": 3.0,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.42,
+        "rss_mb": 11.2,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.17,
+        "rss_mb": 4.6,
+        "ok": true
+      }
+    },
+    "invocation.lox": {
+      "clox": {
+        "wall": 0.16,
+        "rss_mb": 1.8,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.19,
+        "rss_mb": 4.7,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.12,
+        "rss_mb": 2.6,
+        "ok": true
+      }
+    },
+    "method_call.lox": {
+      "clox": {
+        "wall": 0.12,
+        "rss_mb": 1.8,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.09,
+        "rss_mb": 4.7,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.06,
+        "rss_mb": 2.6,
+        "ok": true
+      }
+    },
+    "properties.lox": {
+      "clox": {
+        "wall": 0.24,
+        "rss_mb": 1.9,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.2,
+        "rss_mb": 4.7,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.12,
+        "rss_mb": 2.7,
+        "ok": true
+      }
+    },
+    "trees.lox": {
+      "clox": {
+        "wall": 1.47,
+        "rss_mb": 84.1,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 1.3,
+        "rss_mb": 78.6,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.87,
+        "rss_mb": 43.7,
+        "ok": true
+      }
+    },
+    "zoo.lox": {
+      "clox": {
+        "wall": 0.17,
+        "rss_mb": 1.8,
+        "ok": true
+      },
+      "go-1": {
+        "wall": 0.15,
+        "rss_mb": 4.6,
+        "ok": true
+      },
+      "rust-1": {
+        "wall": 0.11,
+        "rss_mb": 2.6,
+        "ok": true
+      }
+    },
+    "zoo_batch.lox": {
+      "clox": {
+        "wall": 10.0,
+        "rss_mb": 1.8,
+        "ok": true,
+        "batches": 8795
+      },
+      "go-1": {
+        "wall": 10.0,
+        "rss_mb": 4.7,
+        "ok": true,
+        "batches": 9734
+      },
+      "rust-1": {
+        "wall": 10.0,
+        "rss_mb": 2.6,
+        "ok": true,
+        "batches": 13216
+      }
+    }
+  }
+}

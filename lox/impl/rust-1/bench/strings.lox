@@ -1,0 +1,11 @@
+var start = clock();
+var s = "";
+for (var i = 0; i < 20000; i = i + 1) { s = s + "x"; }
+var count = 0;
+for (var i = 0; i < 300000; i = i + 1) { var t = "a" + "b" + "c"; if (t == "abc") count = count + 1; }
+print count;
+fun makeCounter() { var i = 0; fun inc() { i = i + 1; return i; } return inc; }
+var total = 0;
+for (var i = 0; i < 300000; i = i + 1) { var c = makeCounter(); c(); total = total + c(); }
+print total;
+print clock() - start;

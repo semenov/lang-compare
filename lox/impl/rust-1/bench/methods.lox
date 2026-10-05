@@ -1,0 +1,18 @@
+class Counter {
+  init() { this.count = 0; }
+  inc(n) { this.count = this.count + n; return this; }
+  get() { return this.count; }
+}
+class Sub < Counter {
+  inc(n) { return super.inc(n * 2); }
+}
+var start = clock();
+var c = Counter();
+var s = Sub();
+for (var i = 0; i < 5000000; i = i + 1) { c.inc(i); s.inc(1); }
+print c.get();
+print s.get();
+var f = c.inc;
+for (var i = 0; i < 1000000; i = i + 1) { f(1); }
+print c.get();
+print clock() - start;

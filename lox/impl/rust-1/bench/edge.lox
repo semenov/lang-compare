@@ -1,0 +1,19 @@
+var nan = 0/0;
+print nan <= 1; print nan >= 1; print nan < 1; print nan > 1; print nan == nan; print nan != nan;
+if (nan <= 1) print "le-true"; else print "le-false";
+if (nan < 1) print "lt-true"; else print "lt-false";
+var a = 1; var b = 2;
+{ var x = 1; var y; y = x or (x = 5); print y; print x; x = nil; y = x and (x = 3); print y; print x; }
+fun f(n) { var r = 0; while (n > 0) { if (n == 3) r = r + 100; n = n - 1; r = r + 1; } return r; }
+print f(5);
+for (var i = 0; i < 3; i = i + 1) if (i != 1) print i;
+class P { init(x) { this.x = x; this.y = x * 2; } sum() { return this.x + this.y; } }
+var p = P(3); print p.sum(); p.z = 9; print p.z; print p.x;
+var q = P(4); q.y = 1; print q.sum();
+var m = p.sum; print m();
+fun g() { var o = P(1); return o.sum; } print g()();
+print "a" + "b" == "ab";
+print 1 == 1.0; print "x" == "x"; print nil == false;
+var s = 0; for (var i = 0; i < 10; i = i + 1) { if (!(i < 5)) s = s + i; } print s;
+var t = 0; while (!(t >= 4)) t = t + 1; print t;
+print -(3 - 5) * 2 / 4;

@@ -1,0 +1,13 @@
+program                             clox                  go-1                rust-1
+------------------------------------------------------------------------------------
+binary_trees             1.07s    23.6MB       0.78s    24.9MB       0.49s    11.5MB
+equality                 2.52s     1.8MB       3.41s     4.7MB       0.14s     2.6MB
+fib                      0.80s     1.8MB       0.62s     4.6MB       0.43s     2.6MB
+instantiation            0.43s     3.0MB       0.42s    11.2MB       0.17s     4.6MB
+invocation               0.16s     1.8MB       0.19s     4.7MB       0.12s     2.6MB
+method_call              0.12s     1.8MB       0.09s     4.7MB       0.06s     2.6MB
+properties               0.24s     1.9MB       0.20s     4.7MB       0.12s     2.7MB
+trees                    1.47s    84.1MB       1.30s    78.6MB       0.87s    43.7MB
+zoo                      0.17s     1.8MB       0.15s     4.6MB       0.11s     2.6MB
+zoo_batch            8795 batch    1.8MB   9734 batch    4.7MB  13216 batch    2.6MB
+wrote results/bench-round1.json

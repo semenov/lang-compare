@@ -1,0 +1,14 @@
+fun makeCounter() { var c = 0; fun inc() { c = c + 1; return c; } return inc; }
+var start = clock();
+var sum = 0;
+for (var i = 0; i < 300000; i = i + 1) {
+  var f = makeCounter();
+  f(); f();
+  sum = sum + f();
+}
+print sum;
+var x = 0;
+var i = 0;
+while (i < 10000000) { x = x + i * 2 - 1; i = i + 1; }
+print x;
+print clock() - start;
