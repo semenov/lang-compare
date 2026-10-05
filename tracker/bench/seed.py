@@ -12,32 +12,48 @@ import json
 import random
 import threading
 import time
-import urllib.error
-import urllib.request
+import http.client
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 PASSWORD = "benchmark-password-1"
 ORG = "acme"
 
 
+_local = threading.local()
+
+
 def req(base, method, path, body=None, token=None, headers=None, timeout=300):
-    data = json.dumps(body).encode() if body is not None else None
-    r = urllib.request.Request(base + "/api/v1" + path, data=data, method=method)
-    r.add_header("Content-Type", "application/json")
+    """One persistent keep-alive connection per thread (a new TCP connection per request exhausts
+    macOS's ephemeral ports through TIME_WAIT when the server keeps connections open)."""
+    u = urllib.parse.urlsplit(base)
+    hdrs = {"Content-Type": "application/json"}
     if token:
-        r.add_header("Authorization", "Bearer " + token)
-    for k, v in (headers or {}).items():
-        r.add_header(k, v)
-    try:
-        with urllib.request.urlopen(r, timeout=timeout) as resp:
-            raw = resp.read()
-            return resp.status, (json.loads(raw) if raw else None)
-    except urllib.error.HTTPError as e:
-        raw = e.read()
+        hdrs["Authorization"] = "Bearer " + token
+    hdrs.update(headers or {})
+    data = json.dumps(body).encode() if body is not None else None
+    while True:
+        conn = getattr(_local, "conn", None)
+        reused = conn is not None
+        if conn is None:
+            conn = _local.conn = http.client.HTTPConnection(u.hostname, u.port, timeout=timeout)
         try:
-            return e.code, json.loads(raw)
+            conn.request(method, "/api/v1" + path, body=data, headers=hdrs)
+            resp = conn.getresponse()
+            raw = resp.read()
+        except (http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError):
+            conn.close()
+            _local.conn = None
+            if reused:  # the server closed an idle keep-alive connection; the request was not processed
+                continue
+            raise
+        if resp.getheader("Connection", "").lower() == "close":
+            conn.close()
+            _local.conn = None
+        try:
+            return resp.status, (json.loads(raw) if raw else None)
         except ValueError:
-            return e.code, raw
+            return resp.status, raw
 
 
 def must(res, *ok):

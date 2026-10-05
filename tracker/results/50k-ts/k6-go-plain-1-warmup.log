@@ -1,0 +1,82 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /bench/load.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 64 max VUs, 50s max duration (incl. graceful stop):
+              * load: 64 looping VUs for 20s (gracefulStop: 30s)
+
+
+Run    [ 100% ] setup()
+load   [   0% ]
+
+running (02.0s), 64/64 VUs, 1341 complete and 0 interrupted iterations
+load   [   4% ] 64 VUs  00.8s/20s
+
+running (03.0s), 64/64 VUs, 2900 complete and 0 interrupted iterations
+load   [   9% ] 64 VUs  01.8s/20s
+
+running (04.0s), 64/64 VUs, 4386 complete and 0 interrupted iterations
+load   [  14% ] 64 VUs  02.8s/20s
+
+running (05.0s), 64/64 VUs, 6173 complete and 0 interrupted iterations
+load   [  19% ] 64 VUs  03.8s/20s
+
+running (06.0s), 64/64 VUs, 7743 complete and 0 interrupted iterations
+load   [  24% ] 64 VUs  04.8s/20s
+
+running (07.0s), 64/64 VUs, 9612 complete and 0 interrupted iterations
+load   [  29% ] 64 VUs  05.8s/20s
+
+running (08.0s), 64/64 VUs, 11068 complete and 0 interrupted iterations
+load   [  34% ] 64 VUs  06.8s/20s
+
+running (09.0s), 64/64 VUs, 12520 complete and 0 interrupted iterations
+load   [  39% ] 64 VUs  07.8s/20s
+
+running (10.0s), 64/64 VUs, 14200 complete and 0 interrupted iterations
+load   [  44% ] 64 VUs  08.8s/20s
+
+running (11.0s), 64/64 VUs, 15725 complete and 0 interrupted iterations
+load   [  49% ] 64 VUs  09.8s/20s
+
+running (12.0s), 64/64 VUs, 17283 complete and 0 interrupted iterations
+load   [  54% ] 64 VUs  10.8s/20s
+
+running (13.0s), 64/64 VUs, 18843 complete and 0 interrupted iterations
+load   [  59% ] 64 VUs  11.8s/20s
+
+running (14.0s), 64/64 VUs, 20321 complete and 0 interrupted iterations
+load   [  64% ] 64 VUs  12.8s/20s
+
+running (15.0s), 64/64 VUs, 21947 complete and 0 interrupted iterations
+load   [  69% ] 64 VUs  13.8s/20s
+
+running (16.0s), 64/64 VUs, 23517 complete and 0 interrupted iterations
+load   [  74% ] 64 VUs  14.8s/20s
+
+running (17.0s), 64/64 VUs, 25269 complete and 0 interrupted iterations
+load   [  79% ] 64 VUs  15.8s/20s
+
+running (18.0s), 64/64 VUs, 26897 complete and 0 interrupted iterations
+load   [  84% ] 64 VUs  16.8s/20s
+
+running (19.0s), 64/64 VUs, 28457 complete and 0 interrupted iterations
+load   [  89% ] 64 VUs  17.8s/20s
+
+running (20.0s), 64/64 VUs, 30141 complete and 0 interrupted iterations
+load   [  94% ] 64 VUs  18.8s/20s
+
+running (21.0s), 64/64 VUs, 31905 complete and 0 interrupted iterations
+load   [  99% ] 64 VUs  19.8s/20s
+reqs 2367/s, checks 100.00%
+
+running (21.2s), 00/64 VUs, 32323 complete and 0 interrupted iterations
+load ✓ [ 100% ] 64 VUs  20s

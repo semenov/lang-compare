@@ -1,0 +1,17 @@
+== ts-plain-1 (image 272.59 MB)
+  startup 0.274 s, idle memory 27.4 MB
+  issues: 100000 (6s)
+  issues: 200000 (11s)
+  issues: 300000 (16s)
+  issues: 400000 (22s)
+  issues: 500000 (27s)
+  issues: 600000 (33s)
+  issues: 700000 (38s)
+  issues: 800000 (44s)
+  issues: 900000 (50s)
+  issues: 1000000 (56s)
+{"setup_s": 0.8, "generate_s": 14.9, "bulk_issues_s": 55.9, "bulk_issues_per_s": 17889, "transitions_s": 48.3, "comments_s": 31.6}
+  seed: {'setup_s': 0.8, 'generate_s': 14.9, 'bulk_issues_s': 55.9, 'bulk_issues_per_s': 17889, 'transitions_s': 48.3, 'comments_s': 31.6, 'wall_s': 153.2, 'app_cpu_s': 140.3, 'app_mem_peak_mb': 154}, db 2070 MB
+  warmup: 51 req/s, app CPU 0.13 cores, mem peak 117 MB (anon 113), p50/p99 1312.37/4446.14 ms, checks 99.87%
+  saturate: 44 req/s, app CPU 0.1 cores, mem peak 109 MB (anon 105), p50/p99 1634.69/5271.72 ms, checks 98.95%
+  rate: 47 req/s, app CPU 0.12 cores, mem peak 104 MB (anon 96), p50/p99 30280.66/48502.45 ms, checks 97.79%

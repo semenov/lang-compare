@@ -74,7 +74,7 @@ def analyze(d):
                         if b["name"] in ("Edit", "Write"):
                             st["edits"] += 1
                         cmd = b.get("input", {}).get("command", "") if b["name"] == "Bash" else ""
-                        if re.search(r"\b(go build|cargo build|go vet|cargo check|cargo run|go run)\b", cmd):
+                        if re.search(r"\b(go build|cargo build|go vet|cargo check|cargo run|go run|npm run build|tsc)\b", cmd):
                             st["builds"] += 1
                             pending[b["id"]] = "build"
                         if "run_tests.py" in cmd:

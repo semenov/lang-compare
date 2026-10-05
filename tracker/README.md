@@ -119,6 +119,49 @@ The go-1 rerun at 50k gave exactly the same 2 759 req/s ([results/50k-plain](res
   25% smaller and cheaper writes, is faster on simple operations (view p50 65 vs 165 ms).
 - **The language gap is far bigger than the prompt's effect:** Go "asked for speed" is still 1.6× behind Rust, and Go without requirements is 1.84× behind.
 
+## TypeScript on Node.js without performance requirements: ts-plain-1
+
+The same conditions as go-plain-1: no Performance section, no line about speed in the prompt. Node.js 26.10 + TypeScript 7.
+The agent picked plain `node:http` with no framework (its own router), the `pg` driver, and `@node-rs/argon2` (Argon2 as a native addon written in Rust),
+plus a `./tracker` launcher of the form `exec node dist/main.js`. The log was checked by hand: in 23 actions it never accessed anything outside its workspace.
+
+| | **ts-plain-1** | go-plain-1 | go-1 | rust-1 |
+|---|---|---|---|---|
+| First code written | 2:18 | 5:41 | 4:13 | 9:18 |
+| **805/805** | **7:39** (first run) | 11:54 | 11:59 | 17:55 |
+| Done | **12:07** | 12:45 | 13:46 | 19:54 |
+| Output tokens (thinking) | **59k** (16k) | 83k (34k) | 95k (28k) | 127k (62k) |
+| Cost | **$2.87** | $3.54 | $4.22 | $5.59 |
+| Lines of code | **2254** | 3021 | 4229 | 3379 |
+| Dependencies | pg, @node-rs/argon2 | pgx, x/crypto | pgx, x/crypto | tokio, hyper, tokio-postgres, … |
+| Clean build | 1.2 s (`npm ci` + `tsc`) | ~6 s | 6 s | 30 s |
+| Docker image | 273 MB (node:26-slim) | 13.3 MB | 11.1 MB | **2.6 MB** |
+| **50k: throughput** | 1 516 req/s | 2 321–2 458 | 2 759 | **4 529** |
+| 50k: CPU used (of 2) | **1.36** ¹ | 1.84 | 1.77 | 1.83 |
+| 50k: req/s per CPU core | 1 115 | ~1 300 | 1 560 | **2 475** |
+| 50k: p50 / p99 | 52 / 110 ms | 28 / 89–168 ms | 26 / 80 ms | 13 / 120 ms |
+| 50k, ~760 req/s: CPU / p50 | 0.64 / 1.7 ms | 0.62 / 0.8 ms | 0.52 / 0.6 ms | **0.34** / 0.6 ms |
+| 50k: memory under load / idle | 167 / 27 MB | 160 / 28 MB | 126 / 14 MB | **84 / 9 MB** |
+| **1M: throughput** | **44 req/s** ² | 368 | 361 | 322 |
+| 1M: view p50, list p50 | 1.8 s, 3.9 s | 65 ms, 211 ms | 165 ms, 290 ms | 109 ms, 234 ms |
+| 1M: database size | 2 070 MB | 2 497 MB | 3 244 MB | 3 298 MB |
+
+¹ Node runs JavaScript on a single thread: of the 2 CPUs, one is busy plus a bit of background threads (Argon2, I/O). The agent didn't use
+`cluster` or worker threads (it wasn't asked to). Per CPU core the gap to go-plain is only ~15%.
+
+² Not because of Node (the service uses 0.1 cores and waits on the database), but because of the schema: the agent made no index for listing
+issues within a project with sorting (only `org_id`, plus GIN on labels and words; go-plain-1 also has `(project_id, created_at)` and
+`assignee_id`). At 1M issues every listing reads too many rows, PostgreSQL is saturated, and even a view by key waits 1.8 s.
+~1% of requests timed out. At 50k this is invisible: everything fits in memory.
+
+- **The TypeScript agent was the fastest and cheapest of all**: it went from start to 805/805 in 7.7 minutes, at half the cost of Rust, with the least code.
+- **At moderate load the services are equivalent.** At saturation TS loses because of single-threaded Node (−35% against go-plain on 2 CPUs).
+  At 1M it collapses because of one missing index, which is exactly what you'd catch by asking for performance or doing a review.
+
+The seeding script was moved to keep-alive connections for this run (otherwise macOS ran out of ephemeral ports in TIME_WAIT
+against Node, which doesn't close connections itself). go-plain-1 was re-run with the new script at 50k: 2 321 req/s, vs. 2 458 the first time,
+so the noise between runs is ~±5% ([results/50k-ts](results/50k-ts)).
+
 ## Takeaways
 
 - **Agent:** Go finished faster (13:46 vs 19:54) and cheaper ($4.22 vs $5.59), with zero compile errors and 805/805 on the first test run.

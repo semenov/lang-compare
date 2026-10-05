@@ -27,7 +27,7 @@ Implement the service described in SPEC.md (in this directory) in {lang_name}.
 - Write all code in this directory; do not read or write anything outside it
   (except the toolchain, package registries and caches).
 - Toolchain: {toolchain}. Network access for dependencies is available.
-- Build in release mode: {build}. The binary must be `{binary}`.
+- Build in release mode: {build}. The binary must be `{binary}`{binary_note}.
 - PostgreSQL is already running in Docker (container `tracker-postgres`, port 55432); do not start, stop or
   reconfigure it. Use only the database `{db}` (other runs use other databases at the same time); the test
   runner creates it.
@@ -42,9 +42,13 @@ PERF_LINE = ("- We want a solution that is as fast as possible and uses as littl
 
 LANGS = {
     "go": dict(lang_name="Go", toolchain="Go 1.27.1",
-               build="`go build -o tracker .`", binary="./tracker"),
+               build="`go build -o tracker .`", binary="./tracker", binary_note=""),
+    "ts": dict(lang_name="TypeScript on Node.js", toolchain="Node.js 26.10 with npm; TypeScript 7 (from npm)",
+               build="`npm install && npm run build`",
+               binary="./tracker",
+               binary_note=" (an executable file in this directory that starts the service, e.g. a shell script that\n  `exec`s node; it receives SIGTERM directly)"),
     "rust": dict(lang_name="Rust", toolchain="Rust 1.98.1 (cargo)",
-                 build="`cargo build --release`", binary="./target/release/tracker"),
+                 build="`cargo build --release`", binary="./target/release/tracker", binary_note=""),
 }
 
 
@@ -84,8 +88,11 @@ def main():
            "--permission-mode", "acceptEdits",
            "--allowedTools", "Bash,Read,Edit,Write,Glob,Grep,TodoWrite"]
     with open(out / "events.jsonl", "w") as log:
+        env = dict(os.environ)
+        if a.lang == "ts":  # nvm's default is older; use the current Node for this run
+            env["PATH"] = str(Path.home() / ".nvm/versions/node/v26.10.0/bin") + ":" + env["PATH"]
         p = subprocess.Popen(cmd, cwd=ws, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             stdin=subprocess.DEVNULL, text=True)
+                             stdin=subprocess.DEVNULL, text=True, env=env)
         for line in p.stdout:
             line = line.strip()
             if not line:
