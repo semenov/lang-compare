@@ -162,6 +162,74 @@ The seeding script was moved to keep-alive connections for this run (otherwise m
 against Node, which doesn't close connections itself). go-plain-1 was re-run with the new script at 50k: 2 321 req/s, vs. 2 458 the first time,
 so the noise between runs is ~±5% ([results/50k-ts](results/50k-ts)).
 
+## Code quality review (2026-10-05)
+
+Not spec compliance (the tests cover that) but common sense: is this code readable and maintainable, does it follow the
+language's usual norms, and would a senior engineer accept it into a production codebase? One reviewer agent (Opus 5.5) per
+implementation; the most serious claims were then checked by hand in the code.
+
+| | Readability | Maintainability | Idiomaticity | **Overall** |
+|---|---|---|---|---|
+| go-plain-1 | 6 | 5 | 6 | **6** |
+| ts-plain-1 | 6 | 5 | 6 | **5.5** |
+| go-1 | 5 | 4 | 5 | **5** |
+| rust-1 | 5 | 4 | 6 | **5** |
+
+The verdict is the same for all four: a competent prototype, "request changes" as a production PR.
+
+**Common strengths:** correct transactions and row locks (`FOR UPDATE`, a counter on the project row, a lock on the org for
+last-owner checks); a transactional webhook outbox; well-thought-out idempotency and refresh-token rotation; parameterized SQL
+with batch inserts and keyset pagination; a clean problem+json error model; graceful shutdown; few dependencies.
+
+**Common problems:**
+- No layering: every handler parses the body, checks access, runs SQL and builds JSON in one function. Business rules can't
+  be tested without HTTP and a live PostgreSQL.
+- **Zero tests**, not even for pure functions (issue-key parsing, effective role, cursors).
+- Roles, statuses and visibility are magic numbers or strings, in both code and SQL (`role >= 2`, `status == 1`).
+- The "fetch limit+1, truncate, build cursor" pagination is copy-pasted ~8 times in each implementation.
+- The schema is one `CREATE … IF NOT EXISTS` blob, with no versioned migrations.
+- Errors carry no context, some are silently swallowed, and there are no structured or request logs and no request IDs.
+- Global mutable state; config read from `os.Getenv`/`process.env` scattered through `main`.
+- Hand-written infrastructure: all four write their own JWT; the Go versions also do UUIDs, and Rust also does URL and date parsing.
+- Cryptic short names (`R`, `F`, `q1`, `verrs`, `est/ust/sst`, `c`, `cl`, `o`).
+
+**Per implementation:**
+- **go-plain-1 (6)** is the most readable: handlers return `error` through one adapter, and the `applyInput → diffIssues →
+  saveIssueUpdate` pipeline is reused well. Minuses:
+  - Responses are built as `map[string]any`.
+  - Errors are never wrapped (`%w`).
+  - The request body limit is 128 MB.
+  - A latent hazard: `p.can("develper")` with a typo returns true for everyone, because an unknown role gets rank 0
+    (`projects.go:33`).
+- **ts-plain-1 (5.5)** is the most compact and easy to scan. Minuses:
+  - `any` for every database row.
+  - No `noUncheckedIndexedAccess`.
+  - The webhook worker's state machine is hard to follow.
+  - `readBody` has no size limit at all (`main.ts:82`).
+  - Every authenticated request runs `WHERE id::text = $1` (`auth.ts:52`), which can't use the primary-key index.
+  - Small slips: a dead ternary `n === 0 ? "too_short" : "too_short"`, `charLen` defined twice, and a comment claiming "a single
+    query" where the code loops one query per item.
+- **go-1 (5)** has the strongest "benchmark entry" smell. Minuses:
+  - All JSON output is assembled by hand with byte appends (`appendIssue`, `appendHook`, …), plus a custom UUIDv7 generator
+    and JWT. This saves microseconds on a service that waits on the database, and adding a field means changing 5–6 places
+    that must stay in sync.
+  - `hListIssues` is a 300-line function.
+  - Access helpers write the HTTP response themselves and return `(…, bool)`.
+- **rust-1 (5)** has the best router: slice patterns (`(GET, ["orgs", slug, "issues", ik])`) that are clear and exhaustive.
+  Minuses:
+  - Database rows are read by column position (`o + 0 .. o + 16`), so reordering one column breaks things at runtime.
+  - Webhook payloads are stored with the leading `{` cut off and the ID spliced back in at send time.
+  - Labels are joined into a string and split again in SQL.
+  - The search list function is about 260 lines.
+  - Validation uses "validate into an `Option`, then `unwrap()`".
+  - **A real bug:** `https` webhook URLs pass validation, but the client is a bare `HttpConnector` with no TLS dependency, so
+    every https webhook will fail.
+
+**The quality ranking is the reverse of the performance ranking.** The "plain" implementations, written with no speed
+requirement, read better. The line "as fast as possible" pushed the agents toward hand-written JSON (go-1), packed payload
+formats and positional row access (rust-1), all of which cost maintainability. Still, all four lack the same basics (layers,
+types, tests, migrations), which says more about the setup (agents racing to 805/805) than about the languages.
+
 ## Takeaways
 
 - **Agent:** Go finished faster (13:46 vs 19:54) and cheaper ($4.22 vs $5.59), with zero compile errors and 805/805 on the first test run.
@@ -169,3 +237,5 @@ so the noise between runs is ~±5% ([results/50k-ts](results/50k-ts)).
 - **Service:** when the service is the bottleneck, Rust delivers **+64% throughput** and **1.6× less CPU per request**, with
   2–3× lower p99 on most operations and **30% less memory**. The exception is login (Argon2id): Go is 2× faster there.
 - When the database is the bottleneck, the language doesn't matter. Throughput is the same (~340 req/s), and Rust just uses less CPU and memory.
+- **Code quality:** all four are competent prototypes scoring 5–6/10 for maintainability. They have no layering and no tests, and
+  roles and statuses are magic numbers. Asking for speed made the code worse to maintain: go-1 and rust-1 rank below the "plain" versions.
