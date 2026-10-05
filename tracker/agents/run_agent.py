@@ -37,6 +37,9 @@ Implement the service described in SPEC.md (in this directory) in {lang_name}.
 - When done, reply with a short summary of the design.
 """
 
+PERF_LINE = ("- We want a solution that is as fast as possible and uses as little memory as possible; it will be\n"
+             "  benchmarked as described in the Performance section of SPEC.md.\n")
+
 LANGS = {
     "go": dict(lang_name="Go", toolchain="Go 1.27.1",
                build="`go build -o tracker .`", binary="./tracker"),
@@ -50,21 +53,28 @@ def main():
     ap.add_argument("lang", choices=LANGS)
     ap.add_argument("n", type=int)
     ap.add_argument("--model", default="claude-opus-5-5")
+    ap.add_argument("--plain", action="store_true",
+                    help="no performance requirements: SPEC.md without section 10, prompt without the speed/memory line")
     a = ap.parse_args()
 
-    name = f"{a.lang}-{a.n}"
+    name = f"{a.lang}-plain-{a.n}" if a.plain else f"{a.lang}-{a.n}"
     ws = WORKROOT / name
     if ws.exists():
         sys.exit(f"{ws} already exists; remove it to rerun")
     ws.mkdir(parents=True)
-    shutil.copy(ROOT / "SPEC.md", ws / "SPEC.md")
+    spec = (ROOT / "SPEC.md").read_text()
+    if a.plain:
+        spec = spec[:spec.index("## 10. Performance")].rstrip() + "\n"
+    (ws / "SPEC.md").write_text(spec)
     shutil.copy(ROOT / "run_tests.py", ws / "run_tests.py")
     shutil.copy(ROOT / "docker-compose.yml", ws / "docker-compose.yml")
     subprocess.run(["git", "init", "-q"], cwd=ws, check=True)
 
     out = ROOT / "runs" / name
     out.mkdir(parents=True, exist_ok=True)
-    prompt = PROMPT.format(db=f"tracker_{a.lang}_{a.n}", **LANGS[a.lang])
+    prompt = PROMPT.format(db="tracker_" + name.replace("-", "_"), **LANGS[a.lang])
+    if a.plain:
+        prompt = prompt.replace(PERF_LINE, "")
     meta = dict(name=name, lang=a.lang, n=a.n, model=a.model, workspace=str(ws), prompt=prompt,
                 started=time.time(), pid=os.getpid())
     (out / "meta.json").write_text(json.dumps(meta, indent=2))

@@ -1,0 +1,17 @@
+== go-plain-1 (image 13.26 MB)
+  startup 0.268 s, idle memory 22.7 MB
+  issues: 100000 (2s)
+  issues: 200000 (4s)
+  issues: 300000 (6s)
+  issues: 400000 (8s)
+  issues: 500000 (10s)
+  issues: 600000 (12s)
+  issues: 700000 (14s)
+  issues: 800000 (17s)
+  issues: 900000 (19s)
+  issues: 1000000 (31s)
+{"setup_s": 1.4, "generate_s": 18.1, "bulk_issues_s": 31.0, "bulk_issues_per_s": 32258, "transitions_s": 47.4, "comments_s": 34.8}
+  seed: {'setup_s': 1.4, 'generate_s': 18.1, 'bulk_issues_s': 31.0, 'bulk_issues_per_s': 32258, 'transitions_s': 47.4, 'comments_s': 34.8, 'wall_s': 134.2, 'app_cpu_s': 140.7, 'app_mem_peak_mb': 174}, db 2497 MB
+  warmup: 159 req/s, app CPU 0.34 cores, mem peak 161 MB (anon 136), p50/p99 163.22/3237.59 ms, checks 100.00%
+  saturate: 368 req/s, app CPU 0.54 cores, mem peak 188 MB (anon 165), p50/p99 79.29/2153.78 ms, checks 100.00%
+  rate: 284 req/s, app CPU 0.63 cores, mem peak 272 MB (anon 215), p50/p99 4152.81/8366.36 ms, checks 100.00%

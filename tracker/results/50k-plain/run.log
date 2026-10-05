@@ -1,0 +1,14 @@
+== go-plain-1 (image 13.26 MB)
+  startup 0.286 s, idle memory 24.7 MB
+{"setup_s": 1.4, "generate_s": 0.7, "bulk_issues_s": 1.5, "bulk_issues_per_s": 33333, "transitions_s": 4.2, "comments_s": 5.9}
+  seed: {'setup_s': 1.4, 'generate_s': 0.7, 'bulk_issues_s': 1.5, 'bulk_issues_per_s': 33333, 'transitions_s': 4.2, 'comments_s': 5.9, 'wall_s': 14.2, 'app_cpu_s': 18.0, 'app_mem_peak_mb': 238}, db 165 MB
+  warmup: 2391 req/s, app CPU 1.78 cores, mem peak 172 MB (anon 164), p50/p99 28.8/88.27 ms, checks 100.00%
+  saturate: 2458 req/s, app CPU 1.84 cores, mem peak 174 MB (anon 164), p50/p99 28.3/88.92 ms, checks 100.00%
+  rate: 759 req/s, app CPU 0.62 cores, mem peak 171 MB (anon 152), p50/p99 0.77/27.77 ms, checks 100.00%
+== go-1 (image 11.14 MB)
+  startup 0.282 s, idle memory 14.3 MB
+{"setup_s": 1.3, "generate_s": 0.7, "bulk_issues_s": 1.5, "bulk_issues_per_s": 33333, "transitions_s": 3.8, "comments_s": 5.2}
+  seed: {'setup_s': 1.3, 'generate_s': 0.7, 'bulk_issues_s': 1.5, 'bulk_issues_per_s': 33333, 'transitions_s': 3.8, 'comments_s': 5.2, 'wall_s': 13.4, 'app_cpu_s': 13.1, 'app_mem_peak_mb': 94}, db 179 MB
+  warmup: 2860 req/s, app CPU 1.7 cores, mem peak 145 MB (anon 120), p50/p99 24.95/75.41 ms, checks 100.00%
+  saturate: 2759 req/s, app CPU 1.77 cores, mem peak 165 MB (anon 126), p50/p99 26.39/79.67 ms, checks 100.00%
+  rate: 762 req/s, app CPU 0.52 cores, mem peak 198 MB (anon 158), p50/p99 0.61/27.54 ms, checks 100.00%

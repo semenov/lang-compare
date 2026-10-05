@@ -89,6 +89,36 @@ The database (~3.2 GB per implementation) doesn't fit in the Docker VM's memory.
 At this size the comparison is about the agents' SQL schema and index design, not the language. Neither agent got a heavy
 listing query with an exact `total` to perform well on a dataset that doesn't fit in memory.
 
+## Without performance requirements: go-plain-1
+
+The same task in Go, with no request for speed: section 10 (Performance) removed from the spec, and the
+"as fast as possible and as little memory as possible" line removed from the prompt. Everything else is identical, including the 805 tests.
+
+| | **go-plain-1** (no requirements) | go-1 (asked for speed) | rust-1 (asked for speed) |
+|---|---|---|---|
+| 805/805 | 11:54 | 11:59 | 17:55 |
+| Done | 12:45 | 13:46 | 19:54 |
+| Cost | **$3.54** | $4.22 | $5.59 |
+| Lines of code | **3021** | 4229 | 3379 |
+| Stack | `net/http` + pgx + x/crypto | the same | hyper + tokio-postgres |
+| **50k: throughput** | 2 458 req/s | 2 759 req/s (+12%) | **4 529 req/s** (+84%) |
+| 50k: CPU per request | 0.75 ms | 0.64 ms | **0.40 ms** |
+| 50k: p50 / p99 | 28 / 89 ms | 26 / 80 ms | 13 / 120 ms |
+| 50k: memory under load (anon) / idle | 164 / 25 MB | 126 / 14 MB | **84 / 9 MB** |
+| 1M: throughput / service CPU | 368 req/s / 0.54 cores | 361 / 0.34 | 322 / **0.20** |
+| 1M: view p50/p99, list p50/p99, search p99 | **65/539**, 211/3524, 3261 ms | 165/426, 290/**1871**, **496** ms | 109/301, 234/3494, 644 ms |
+| 1M: database size | **2497 MB** | 3244 MB | 3298 MB |
+| Image | 13.3 MB | 11.1 MB | **2.6 MB** |
+
+The go-1 rerun at 50k gave exactly the same 2 759 req/s ([results/50k-plain](results/50k-plain)), so the measurements reproduce.
+
+- **One sentence in the prompt buys Go ~12% throughput and ~25% less memory, at +40% code and +$0.7.** The agents' timelines are almost
+  identical: go-1 spent only ~1.5 minutes after the tests passed on "optimization" (a quick load test). The difference comes from how the code was
+  designed from the start (`COPY` for bulk inserts, smallint enums, UUIDv7 for pagination, extra indexes).
+- On the large database the extra indexes cut both ways: go-1 has a 3× better search p99 and half the list p99, while go-plain-1, with a database
+  25% smaller and cheaper writes, is faster on simple operations (view p50 65 vs 165 ms).
+- **The language gap is far bigger than the prompt's effect:** Go "asked for speed" is still 1.6× behind Rust, and Go without requirements is 1.84× behind.
+
 ## Takeaways
 
 - **Agent:** Go finished faster (13:46 vs 19:54) and cheaper ($4.22 vs $5.59), with zero compile errors and 805/805 on the first test run.
