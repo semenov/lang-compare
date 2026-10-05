@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Acceptance tests for the search engine (see SPEC.md).
 
-Usage: run_tests.py <path-to-binary> [--port 18080] [-v]
+Usage: run_tests.py <path-to-binary> [--port N] [-v]   (default: a free port)
 
 Indexes testdata/corpus.jsonl into a temporary directory with `<binary> index`, starts `<binary> serve`,
 then compares every query in testdata/expected.jsonl, checks /doc, /health, bad requests and concurrent use.
@@ -95,7 +95,13 @@ def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     binary = str(Path(sys.argv[1]).resolve())
-    port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 18080
+    if "--port" in sys.argv:
+        port = int(sys.argv[sys.argv.index("--port") + 1])
+    else:
+        import socket
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
     verbose = "-v" in sys.argv
     results = []  # (name, fails)
 
