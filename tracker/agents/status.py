@@ -89,7 +89,7 @@ def analyze(d):
                     text = tool_result_text(b)
                     if kind == "build" and (b.get("is_error") or re.search(r"\berror(\[E\d+\])?:", text)):
                         st["build_fails"] += 1
-                    m = TESTS_RE.findall(text)
+                    m = TESTS_RE.findall(text) if kind == "test" else None
                     if m:
                         p, fl = map(int, m[-1])
                         st["tests"] = (p, fl)

@@ -1,0 +1,12 @@
+{
+  "name": "rust-1",
+  "lang": "rust",
+  "n": 1,
+  "model": "claude-opus-5-5",
+  "workspace": "/private/tmp/tracker-runs/rust-1",
+  "prompt": "Implement the service described in SPEC.md (in this directory) in Rust.\n\n- Write all code in this directory; do not read or write anything outside it\n  (except the toolchain, package registries and caches).\n- Toolchain: Rust 1.98.1 (cargo). Network access for dependencies is available.\n- Build in release mode: `cargo build --release`. The binary must be `./target/release/tracker`.\n- PostgreSQL is already running in Docker (container `tracker-postgres`, port 55432); do not start, stop or\n  reconfigure it. Use only the database `tracker_rust_1` (other runs use other databases at the same time); the test\n  runner creates it.\n- Done means: `python3 run_tests.py ./target/release/tracker --db tracker_rust_1` reports 0 failed.\n- We want a solution that is as fast as possible and uses as little memory as possible; it will be\n  benchmarked as described in the Performance section of SPEC.md.\n- When done, reply with a short summary of the design.\n",
+  "started": 1791188257.200406,
+  "pid": 56851,
+  "finished": 1791189451.8572202,
+  "exit_code": 0
+}
